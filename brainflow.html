@@ -462,7 +462,15 @@ header .tagline {
 .spacer { flex: 1; }
 .text-center { text-align: center; }
 .mt-8 { margin-top: 8px; }
-.completed-banner {
+.sync-badge {
+  font-size: 1.1rem; cursor: pointer;
+  opacity: 0.7; transition: all 0.3s;
+  user-select: none;
+}
+.sync-badge.syncing { animation: spin 1s linear infinite; opacity: 1; }
+.sync-badge.saved { opacity: 1; }
+.sync-badge.error { opacity: 1; }
+@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
   background: var(--green); border: var(--border); border-radius: 10px;
   padding: 10px 14px; text-align: center;
   font-family: 'Bangers', cursive; font-size: 1.1rem;
@@ -480,7 +488,10 @@ header .tagline {
     <h1>⚡ BRAINFLOW</h1>
     <div class="tagline">Routines · Focus · Brain Dump</div>
   </div>
-  <button class="settings-btn" onclick="openSettings()">⚙️</button>
+  <div style="display:flex;align-items:center;gap:8px;">
+    <div id="sync-status" class="sync-badge" title="Cloud sync status">☁️</div>
+    <button class="settings-btn" onclick="openSettings()">⚙️</button>
+  </div>
 </header>
 
 <!-- PANELS -->
@@ -644,10 +655,16 @@ header .tagline {
     <div class="modal-body">
       <div class="settings-content">
         <div class="settings-group">
+          <label>GitHub Token (Cloud Sync)</label>
+          <input type="password" class="settings-input" id="gh-token-input"
+            placeholder="ghp_...">
+          <div class="settings-note">Your data syncs to a private GitHub Gist — survives browser clears & works across devices.</div>
+        </div>
+        <div class="settings-group">
           <label>Anthropic API Key</label>
           <input type="password" class="settings-input" id="api-key-input"
             placeholder="sk-ant-...">
-          <div class="settings-note">Required for the Brain Dump formula generator. Your key is stored locally on this device.</div>
+          <div class="settings-note">Required for the Brain Dump formula generator.</div>
         </div>
         <button class="save-settings-btn" onclick="saveSettings()">💾 SAVE SETTINGS</button>
       </div>
@@ -741,17 +758,21 @@ let activeRoutine = null;
 let checklistState = {};
 let checklistNotes = [];
 let taskLog = [];
+let taskLogs = []; // persisted completed task logs
 let activeTask = null;
 let taskStartTime = null;
 let timerInterval = null;
 let brainNotes = JSON.parse(localStorage.getItem('bf_brain_notes') || '[]');
 
 // ─── INIT ─────────────────────────────────────────────────────────────────────
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
   buildRoutineGrid();
-  renderBrainNotes();
   const saved = localStorage.getItem('bf_api_key');
   if (saved) document.getElementById('api-key-input').value = saved;
+  // Load from cloud first, fallback to local
+  const loaded = await cloudLoad();
+  if (!loaded) brainNotes = JSON.parse(localStorage.getItem('bf_brain_notes') || '[]');
+  renderBrainNotes();
 });
 
 // ─── TABS ─────────────────────────────────────────────────────────────────────
@@ -828,6 +849,7 @@ function toggleStep(idx) {
   state[idx].done = !state[idx].done;
   state[idx].timestamp = state[idx].done ? now() : '';
   renderChecklist();
+  scheduleSave();
 }
 
 function setCat(idx, val) {
@@ -961,8 +983,10 @@ function endTask() {
   if (!activeTask) return;
   const elapsed = formatElapsed(Date.now() - taskStartTime);
   addLogEntry(`Ended after ${elapsed}`, 'misc', true);
+  taskLogs.push({ task: activeTask.name, log: [...taskLog], date: new Date().toLocaleDateString() });
   clearInterval(timerInterval);
   activeTask = null;
+  scheduleSave();
   renderTracker();
 }
 
@@ -1017,14 +1041,14 @@ function addQuickNote() {
   const text = input.value.trim();
   if (!text) return;
   brainNotes.unshift({ text, time: now() });
-  localStorage.setItem('bf_brain_notes', JSON.stringify(brainNotes));
+  saveAndSync();
   input.value = '';
   renderBrainNotes();
 }
 
 function deleteBrainNote(idx) {
   brainNotes.splice(idx, 1);
-  localStorage.setItem('bf_brain_notes', JSON.stringify(brainNotes));
+  saveAndSync();
   renderBrainNotes();
 }
 
@@ -1084,15 +1108,106 @@ NEXT STEP: [the single most immediate next action, very specific]`;
   }
 }
 
-// ─── SETTINGS ────────────────────────────────────────────────────────────────
+// ─── CLOUD SYNC (GitHub Gist) ─────────────────────────────────────────────────
+const GIST_FILENAME = 'brainflow-data.json';
+let syncTimeout = null;
+
+function setSyncStatus(state) {
+  const el = document.getElementById('sync-status');
+  if (!el) return;
+  const states = { idle: '☁️', syncing: '🔄', saved: '✅', error: '❌' };
+  el.textContent = states[state] || '☁️';
+  el.className = 'sync-badge ' + (state !== 'idle' ? state : '');
+  if (state === 'saved') setTimeout(() => setSyncStatus('idle'), 3000);
+}
+
+function getCloudData() {
+  return {
+    brainNotes,
+    checklistState,
+    taskLogs: taskLogs.slice(-50), // keep last 50 completed logs
+    lastSaved: new Date().toISOString()
+  };
+}
+
+async function cloudSave() {
+  const token = localStorage.getItem('bf_gh_token');
+  if (!token) return;
+  setSyncStatus('syncing');
+  const gistId = localStorage.getItem('bf_gist_id');
+  const content = JSON.stringify(getCloudData(), null, 2);
+  const body = { description: 'BrainFlow App Data', public: false,
+    files: { [GIST_FILENAME]: { content } } };
+  try {
+    let res, data;
+    if (gistId) {
+      res = await fetch(`https://api.github.com/gists/${gistId}`, {
+        method: 'PATCH',
+        headers: { Authorization: `token ${token}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      });
+    } else {
+      res = await fetch('https://api.github.com/gists', {
+        method: 'POST',
+        headers: { Authorization: `token ${token}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      });
+    }
+    data = await res.json();
+    if (data.id) localStorage.setItem('bf_gist_id', data.id);
+    setSyncStatus(res.ok ? 'saved' : 'error');
+  } catch (e) { setSyncStatus('error'); }
+}
+
+async function cloudLoad() {
+  const token = localStorage.getItem('bf_gh_token');
+  const gistId = localStorage.getItem('bf_gist_id');
+  if (!token || !gistId) return false;
+  setSyncStatus('syncing');
+  try {
+    const res = await fetch(`https://api.github.com/gists/${gistId}`, {
+      headers: { Authorization: `token ${token}` }
+    });
+    if (!res.ok) { setSyncStatus('error'); return false; }
+    const data = await res.json();
+    const raw = data.files?.[GIST_FILENAME]?.content;
+    if (!raw) { setSyncStatus('idle'); return false; }
+    const parsed = JSON.parse(raw);
+    if (parsed.brainNotes) brainNotes = parsed.brainNotes;
+    if (parsed.checklistState) checklistState = parsed.checklistState;
+    if (parsed.taskLogs) taskLogs = parsed.taskLogs;
+    setSyncStatus('saved');
+    return true;
+  } catch (e) { setSyncStatus('error'); return false; }
+}
+
+function scheduleSave() {
+  clearTimeout(syncTimeout);
+  syncTimeout = setTimeout(cloudSave, 1500);
+}
+
+// wrap saves to trigger cloud sync
+function saveAndSync() {
+  localStorage.setItem('bf_brain_notes', JSON.stringify(brainNotes));
+  scheduleSave();
+}
+
+
 function saveSettings() {
   const key = document.getElementById('api-key-input').value.trim();
+  const ghToken = document.getElementById('gh-token-input').value.trim();
   if (key) localStorage.setItem('bf_api_key', key);
   else localStorage.removeItem('bf_api_key');
+  if (ghToken) { localStorage.setItem('bf_gh_token', ghToken); cloudSave(); }
+  else localStorage.removeItem('bf_gh_token');
   closeModal('settings-modal');
-  alert('✅ Settings saved!');
+  alert(ghToken ? '✅ Settings saved! Cloud sync active.' : '✅ Settings saved!');
 }
-function openSettings() { openModal('settings-modal'); }
+function openSettings() {
+  const savedToken = localStorage.getItem('bf_gh_token');
+  if (savedToken) document.getElementById('gh-token-input').value = savedToken;
+  openModal('settings-modal');
+}
 
 // ─── MODAL ────────────────────────────────────────────────────────────────────
 function openModal(id) { document.getElementById(id).classList.add('open'); }
