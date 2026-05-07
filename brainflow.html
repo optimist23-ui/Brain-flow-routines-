@@ -138,6 +138,13 @@ header .tagline{font-size:0.65rem;color:#aaa;letter-spacing:2px;text-transform:u
 .item-meta{display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
 .item-timestamp{font-size:0.7rem;color:var(--blue);font-weight:800;}
 .item-cat-select{border:2px solid #ddd;border-radius:6px;padding:2px 6px;font-family:'Nunito',sans-serif;font-size:0.7rem;font-weight:800;outline:none;cursor:pointer;background:white;}
+.item-text-row{display:flex;align-items:center;gap:6px;margin-bottom:4px;}
+.item-text{font-size:0.92rem;font-weight:700;flex:1;}
+.edit-step-btn{background:none;border:1.5px solid #ddd;border-radius:6px;padding:2px 6px;cursor:pointer;font-size:0.75rem;color:#888;transition:all 0.12s;flex-shrink:0;}
+.edit-step-btn:hover{background:var(--yellow);border-color:var(--dark);color:var(--dark);}
+.step-edit-input{width:100%;border:2px solid var(--blue);border-radius:6px;padding:4px 8px;font-family:'Nunito',sans-serif;font-size:0.92rem;font-weight:700;outline:none;background:white;}
+.add-step-btn{width:100%;margin-top:8px;background:white;border:2px dashed #ccc;border-radius:10px;padding:10px;font-family:'Bangers',cursive;font-size:0.9rem;letter-spacing:1px;cursor:pointer;color:#888;transition:all 0.12s;}
+.add-step-btn:hover{border-color:var(--green);color:var(--green);}
 .checklist-brainstorm{margin-top:16px;background:#FFFEF2;border:2px dashed #ccc;border-radius:12px;padding:12px;}
 .completed-banner{background:var(--green);border:var(--border);border-radius:10px;padding:10px 14px;text-align:center;font-family:'Bangers',cursive;font-size:1.1rem;letter-spacing:2px;color:white;margin-bottom:12px;display:none;}
 .completed-banner.show{display:block;}
@@ -423,19 +430,61 @@ function renderChecklist() {
   var banner = document.getElementById('complete-banner');
   if (done === total && total > 0) banner.classList.add('show'); else banner.classList.remove('show');
   var html = '';
-  for (var i = 0; i < activeRoutine.steps.length; i++) {
+  for (var i = 0; i < state.length; i++) {
     var s = state[i];
+    var stepText = s.customText || activeRoutine.steps[i] || '';
     var cats = ['personal','email','project','family','misc'];
     var catOpts = '';
     for (var c = 0; c < cats.length; c++) catOpts += '<option value="' + cats[c] + '"' + (s.category===cats[c]?' selected':'') + '>' + cats[c] + '</option>';
-    html += '<div class="checklist-item' + (s.done?' done':'') + '">';
+    html += '<div class="checklist-item' + (s.done?' done':'') + '" id="ci-' + i + '">';
     html += '<div class="item-check' + (s.done?' checked':'') + '" onclick="toggleStep(' + i + ')">' + (s.done?'&#10003;':'') + '</div>';
-    html += '<div class="item-body"><div class="item-text">' + activeRoutine.steps[i] + '</div>';
+    html += '<div class="item-body">';
+    html += '<div class="item-text-row">';
+    html += '<div class="item-text" id="item-text-' + i + '" ondblclick="editStep(' + i + ')">' + stepText + '</div>';
+    html += '<button class="edit-step-btn" onclick="editStep(' + i + ')" title="Edit step">&#9998;</button>';
+    html += '</div>';
     html += '<div class="item-meta"><select class="item-cat-select" onchange="setCat(' + i + ',this.value)">' + catOpts + '</select>';
     if (s.timestamp) html += '<span class="item-timestamp">Done: ' + s.timestamp + '</span>';
     html += '</div></div></div>';
   }
+  // Add new step button
+  html += '<button class="add-step-btn" onclick="addStep()">+ Add Step</button>';
   document.getElementById('checklist-items').innerHTML = html;
+}
+
+function editStep(idx) {
+  if (!activeRoutine) return;
+  var state = checklistState[activeRoutine.id];
+  var current = state[idx].customText || activeRoutine.steps[idx] || '';
+  var textEl = document.getElementById('item-text-' + idx);
+  if (!textEl) return;
+  textEl.innerHTML = '<input type="text" class="step-edit-input" id="step-edit-' + idx + '" value="' + current.replace(/"/g,'&quot;') + '" onblur="saveStep(' + idx + ')" onkeydown="if(event.key===\'Enter\')saveStep(' + idx + ');if(event.key===\'Escape\')renderChecklist();">';
+  var inp = document.getElementById('step-edit-' + idx);
+  if (inp) { inp.focus(); inp.select(); }
+}
+
+function saveStep(idx) {
+  if (!activeRoutine) return;
+  var inp = document.getElementById('step-edit-' + idx);
+  if (!inp) return;
+  var val = inp.value.trim();
+  if (val) {
+    checklistState[activeRoutine.id][idx].customText = val;
+    // Also update the routine steps array so it persists
+    activeRoutine.steps[idx] = val;
+    scheduleSave();
+  }
+  renderChecklist();
+}
+
+function addStep() {
+  if (!activeRoutine) return;
+  activeRoutine.steps.push('New step');
+  checklistState[activeRoutine.id].push({done:false, timestamp:'', category:'personal', customText:'New step'});
+  renderChecklist();
+  // Auto-open edit on the new step
+  var newIdx = activeRoutine.steps.length - 1;
+  setTimeout(function(){ editStep(newIdx); }, 50);
 }
 
 function toggleStep(idx) {
