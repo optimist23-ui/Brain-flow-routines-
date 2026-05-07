@@ -61,6 +61,14 @@ header .tagline{font-size:0.65rem;color:#aaa;letter-spacing:2px;text-transform:u
 .log-text{flex:1;font-size:0.9rem;font-weight:700;}
 .cat-badge{font-size:0.65rem;font-weight:800;letter-spacing:1px;text-transform:uppercase;padding:2px 7px;border-radius:20px;border:2px solid var(--dark);white-space:nowrap;}
 .cat-email{background:#FEF3C7;}.cat-project{background:#DBEAFE;}.cat-personal{background:#FCE7F3;}.cat-family{background:#D1FAE5;}.cat-misc{background:#EDE9FE;}
+.log-check{width:20px;height:20px;border:2px solid #555;border-radius:5px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:0.75rem;transition:all 0.15s;background:white;}
+.log-check.checked{background:var(--green);border-color:var(--green);color:white;}
+.log-auto-dot{color:#555;font-size:1rem;flex-shrink:0;padding:0 2px;}
+.log-done{opacity:0.6;}
+.strikethrough{text-decoration:line-through;color:#aaa;}
+.arch-reviewed{border-color:var(--green)!important;box-shadow:3px 3px 0 var(--green)!important;}
+.arch-check{width:22px;height:22px;border:2px solid #777;border-radius:5px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:0.8rem;transition:all 0.15s;background:white;margin-right:8px;}
+.arch-check.checked{background:var(--green);border-color:var(--green);color:white;}
 .tracker-empty{text-align:center;padding:40px 20px;color:#aaa;}
 .tracker-empty .empty-icon{font-size:3rem;margin-bottom:10px;}
 .tracker-empty p{font-weight:700;font-size:0.9rem;}
@@ -629,10 +637,44 @@ function renderLogList() {
   var html = '<div class="log-list">';
   for (var i = taskLog.length - 1; i >= 0; i--) {
     var e = taskLog[i];
-    html += '<div class="log-item"><span class="log-timestamp">' + e.time + '</span><span class="log-text">' + e.text + '</span><span class="cat-badge cat-' + e.cat + '">' + e.cat + '</span></div>';
+    html += '<div class="log-item' + (e.done ? ' log-done' : '') + '" id="log-item-' + i + '">';
+    if (!e.auto) {
+      html += '<div class="log-check' + (e.done ? ' checked' : '') + '" onclick="toggleLogEntry(' + i + ')" title="Mark done">' + (e.done ? '&#10003;' : '') + '</div>';
+    } else {
+      html += '<span class="log-auto-dot">&#8226;</span>';
+    }
+    html += '<span class="log-timestamp">' + e.time + '</span>';
+    html += '<span class="log-text' + (e.done ? ' strikethrough' : '') + '" id="log-text-' + i + '">' + e.text + '</span>';
+    html += '<span class="cat-badge cat-' + e.cat + '">' + e.cat + '</span>';
+    if (!e.auto) html += '<button class="edit-step-btn" onclick="editLogEntry(' + i + ')" title="Edit">&#9998;</button>';
+    html += '</div>';
   }
   html += '</div>';
   area.innerHTML = html;
+}
+
+function toggleLogEntry(idx) {
+  if (!taskLog[idx]) return;
+  taskLog[idx].done = !taskLog[idx].done;
+  renderLogList();
+}
+
+function editLogEntry(idx) {
+  if (!taskLog[idx]) return;
+  var textEl = document.getElementById('log-text-' + idx);
+  if (!textEl) return;
+  var current = taskLog[idx].text;
+  textEl.innerHTML = '<input type="text" class="step-edit-input" id="log-edit-' + idx + '" value="' + current.replace(/"/g,'&quot;') + '" onblur="saveLogEntry(' + idx + ')" onkeydown="if(event.key===\'Enter\')saveLogEntry(' + idx + ');if(event.key===\'Escape\')renderLogList();">';
+  var inp = document.getElementById('log-edit-' + idx);
+  if (inp) { inp.focus(); inp.select(); }
+}
+
+function saveLogEntry(idx) {
+  var inp = document.getElementById('log-edit-' + idx);
+  if (!inp) return;
+  var val = inp.value.trim();
+  if (val) taskLog[idx].text = val;
+  renderLogList();
 }
 
 function setArchiveCat(cat, btn) {
@@ -661,19 +703,85 @@ function renderArchive() {
   var html = '';
   for (var i = 0; i < filtered.length; i++) {
     var t = filtered[i];
-    html += '<div class="archive-item">';
-    html += '<div class="archive-item-header" onclick="toggleArchive(' + i + ')">';
-    html += '<div><div class="archive-item-title">' + t.task + '</div>';
-    html += '<div class="archive-item-meta"><span>' + t.date + '</span><span>' + (t.startTime||'') + '</span><span>' + t.log.length + ' steps</span></div></div>';
-    html += '<span id="arch-chev-' + i + '">v</span></div>';
+    var tIdx = taskLogs.indexOf(t);
+    html += '<div class="archive-item' + (t.reviewed ? ' arch-reviewed' : '') + '">';
+    html += '<div class="archive-item-header">';
+    html += '<div class="arch-check' + (t.reviewed ? ' checked' : '') + '" onclick="toggleArchiveReview(' + tIdx + ')" title="Mark reviewed">' + (t.reviewed ? '&#10003;' : '') + '</div>';
+    html += '<div style="flex:1;cursor:pointer;" onclick="toggleArchive(' + i + ')">';
+    html += '<div class="archive-item-title" id="arch-title-' + tIdx + '">' + t.task + '</div>';
+    html += '<div class="archive-item-meta"><span>' + t.date + '</span><span>' + (t.startTime||'') + '</span><span>' + t.log.length + ' steps</span>' + (t.reviewed ? '<span style="color:var(--green);font-weight:800;">&#10003; Reviewed</span>' : '') + '</div>';
+    html += '</div>';
+    html += '<div style="display:flex;gap:6px;align-items:center;">';
+    html += '<button class="edit-step-btn" onclick="editArchiveTitle(' + tIdx + ')" title="Edit task name">&#9998;</button>';
+    html += '<span id="arch-chev-' + i + '">v</span></div></div>';
     html += '<div class="archive-item-body" id="arch-body-' + i + '">';
     for (var j = 0; j < t.log.length; j++) {
       var l = t.log[j];
-      html += '<div class="archive-log-row"><span class="log-timestamp" style="font-size:0.75rem;">' + l.time + '</span><span style="flex:1;font-size:0.82rem;font-weight:700;">' + l.text + '</span><span class="cat-badge cat-' + l.cat + '" style="font-size:0.6rem;">' + l.cat + '</span></div>';
+      html += '<div class="archive-log-row" id="arch-log-' + tIdx + '-' + j + '">';
+      if (!l.auto) {
+        html += '<div class="log-check' + (l.done ? ' checked' : '') + '" onclick="toggleArchiveLog(' + tIdx + ',' + j + ')" style="width:18px;height:18px;border-width:2px;border-radius:4px;font-size:0.7rem;">' + (l.done ? '&#10003;' : '') + '</div>';
+      } else {
+        html += '<span class="log-auto-dot">&#8226;</span>';
+      }
+      html += '<span class="log-timestamp" style="font-size:0.75rem;">' + l.time + '</span>';
+      html += '<span style="flex:1;font-size:0.82rem;font-weight:700;' + (l.done ? 'text-decoration:line-through;color:#aaa;' : '') + '" id="arch-log-text-' + tIdx + '-' + j + '">' + l.text + '</span>';
+      html += '<span class="cat-badge cat-' + l.cat + '" style="font-size:0.6rem;">' + l.cat + '</span>';
+      if (!l.auto) html += '<button class="edit-step-btn" onclick="editArchiveLog(' + tIdx + ',' + j + ')" style="font-size:0.65rem;padding:1px 4px;">&#9998;</button>';
+      html += '</div>';
     }
     html += '</div></div>';
   }
   list.innerHTML = html;
+}
+
+function toggleArchiveReview(tIdx) {
+  if (!taskLogs[tIdx]) return;
+  taskLogs[tIdx].reviewed = !taskLogs[tIdx].reviewed;
+  scheduleSave();
+  renderArchive();
+}
+
+function editArchiveTitle(tIdx) {
+  var t = taskLogs[tIdx];
+  if (!t) return;
+  var el = document.getElementById('arch-title-' + tIdx);
+  if (!el) return;
+  el.innerHTML = '<input type="text" class="step-edit-input" id="arch-title-input-' + tIdx + '" value="' + t.task.replace(/"/g,'&quot;') + '" onblur="saveArchiveTitle(' + tIdx + ')" onkeydown="if(event.key===\'Enter\')saveArchiveTitle(' + tIdx + ');if(event.key===\'Escape\')renderArchive();">';
+  var inp = document.getElementById('arch-title-input-' + tIdx);
+  if (inp) { inp.focus(); inp.select(); }
+}
+
+function saveArchiveTitle(tIdx) {
+  var inp = document.getElementById('arch-title-input-' + tIdx);
+  if (!inp) return;
+  var val = inp.value.trim();
+  if (val && taskLogs[tIdx]) { taskLogs[tIdx].task = val; scheduleSave(); }
+  renderArchive();
+}
+
+function toggleArchiveLog(tIdx, j) {
+  if (!taskLogs[tIdx] || !taskLogs[tIdx].log[j]) return;
+  taskLogs[tIdx].log[j].done = !taskLogs[tIdx].log[j].done;
+  scheduleSave();
+  renderArchive();
+}
+
+function editArchiveLog(tIdx, j) {
+  var l = taskLogs[tIdx] && taskLogs[tIdx].log[j];
+  if (!l) return;
+  var el = document.getElementById('arch-log-text-' + tIdx + '-' + j);
+  if (!el) return;
+  el.innerHTML = '<input type="text" class="step-edit-input" id="arch-log-inp-' + tIdx + '-' + j + '" value="' + l.text.replace(/"/g,'&quot;') + '" onblur="saveArchiveLog(' + tIdx + ',' + j + ')" onkeydown="if(event.key===\'Enter\')saveArchiveLog(' + tIdx + ',' + j + ');if(event.key===\'Escape\')renderArchive();">';
+  var inp = document.getElementById('arch-log-inp-' + tIdx + '-' + j);
+  if (inp) { inp.focus(); inp.select(); }
+}
+
+function saveArchiveLog(tIdx, j) {
+  var inp = document.getElementById('arch-log-inp-' + tIdx + '-' + j);
+  if (!inp) return;
+  var val = inp.value.trim();
+  if (val && taskLogs[tIdx] && taskLogs[tIdx].log[j]) { taskLogs[tIdx].log[j].text = val; scheduleSave(); }
+  renderArchive();
 }
 
 function toggleArchive(i) {
