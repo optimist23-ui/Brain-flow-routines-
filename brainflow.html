@@ -6,1146 +6,549 @@
 <title>BrainFlow</title>
 <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
 <style>
-:root {
-  --yellow: #FFE600;
-  --red: #FF3C38;
-  --blue: #1B5BFF;
-  --green: #00C94F;
-  --purple: #9B5DE5;
-  --orange: #FF8C00;
-  --dark: #1A1A1A;
-  --white: #FFFEF2;
-  --border: 3px solid #1A1A1A;
-  --shadow: 4px 4px 0px #1A1A1A;
-  --shadow-lg: 6px 6px 0px #1A1A1A;
-}
-* { box-sizing: border-box; margin: 0; padding: 0; }
-html, body { height: 100%; overflow: hidden; }
-body {
-  font-family: 'Nunito', sans-serif;
-  background: var(--white);
-  background-image: radial-gradient(circle, rgba(0,0,0,0.12) 1.5px, transparent 1.5px);
-  background-size: 22px 22px;
-  color: var(--dark);
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-}
-
-/* ─── HEADER ─── */
-header {
-  background: var(--dark);
-  color: var(--yellow);
-  padding: 10px 18px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  border-bottom: 3px solid var(--dark);
-  flex-shrink: 0;
-  z-index: 10;
-}
-header h1 {
-  font-family: 'Bangers', cursive;
-  font-size: 2rem;
-  letter-spacing: 3px;
-  line-height: 1;
-}
-header .tagline {
-  font-size: 0.65rem;
-  color: #aaa;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  margin-top: 1px;
-}
-.settings-btn {
-  background: none; border: 2px solid var(--yellow);
-  color: var(--yellow); border-radius: 8px;
-  padding: 4px 10px; cursor: pointer;
-  font-size: 1.1rem; transition: all 0.15s;
-}
-.settings-btn:hover { background: var(--yellow); color: var(--dark); }
-
-/* ─── TAB BAR ─── */
-.tab-bar {
-  display: flex;
-  background: var(--dark);
-  border-top: 3px solid var(--dark);
-  flex-shrink: 0;
-}
-.tab-btn {
-  flex: 1; padding: 10px 6px 8px;
-  background: none; border: none; cursor: pointer;
-  color: #666; font-family: 'Bangers', cursive;
-  font-size: 0.85rem; letter-spacing: 1.5px;
-  text-transform: uppercase; display: flex;
-  flex-direction: column; align-items: center; gap: 2px;
-  transition: all 0.15s;
-}
-.tab-btn .tab-icon { font-size: 1.4rem; }
-.tab-btn.active { color: var(--yellow); }
-.tab-btn.active .tab-underline {
-  width: 30px; height: 3px;
-  background: var(--yellow); border-radius: 2px;
-}
-.tab-underline { width: 0; height: 3px; border-radius: 2px; }
-
-/* ─── PANELS ─── */
-.panels { flex: 1; overflow: hidden; position: relative; }
-.panel {
-  position: absolute; inset: 0;
-  overflow-y: auto; padding: 16px;
-  display: none; opacity: 0;
-  transition: opacity 0.2s;
-}
-.panel.active { display: block; opacity: 1; }
-
-/* ─── ROUTINES PANEL ─── */
-.panel-title {
-  font-family: 'Bangers', cursive;
-  font-size: 1.5rem; letter-spacing: 2px;
-  margin-bottom: 14px; text-transform: uppercase;
-}
-.routines-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
-}
-.routine-card {
-  border: var(--border); border-radius: 14px;
-  padding: 16px 12px; cursor: pointer;
-  display: flex; flex-direction: column;
-  align-items: center; gap: 8px;
-  box-shadow: var(--shadow);
-  transition: transform 0.12s, box-shadow 0.12s;
-  position: relative; overflow: hidden;
-}
-.routine-card:active {
-  transform: translate(3px, 3px);
-  box-shadow: 1px 1px 0 var(--dark);
-}
-.routine-card .card-icon { font-size: 2.8rem; line-height: 1; }
-.routine-card .card-label {
-  font-family: 'Bangers', cursive;
-  font-size: 1.05rem; letter-spacing: 1.5px;
-  text-align: center; text-transform: uppercase;
-  color: var(--dark);
-}
-.routine-card .step-count {
-  font-size: 0.7rem; color: rgba(0,0,0,0.5);
-  font-weight: 700; letter-spacing: 1px;
-}
-.card-badge {
-  position: absolute; top: 8px; right: 8px;
-  width: 10px; height: 10px; border-radius: 50%;
-  border: 2px solid var(--dark);
-}
-
-/* ─── TRACKER PANEL ─── */
-.tracker-start {
-  display: flex; gap: 8px; margin-bottom: 16px;
-}
-.tracker-start input {
-  flex: 1; border: var(--border); border-radius: 10px;
-  padding: 10px 14px; font-family: 'Nunito', sans-serif;
-  font-size: 0.9rem; font-weight: 700;
-  background: white; outline: none;
-}
-.tracker-start input:focus { border-color: var(--blue); }
-.btn-primary {
-  background: var(--yellow); border: var(--border);
-  border-radius: 10px; padding: 10px 16px;
-  font-family: 'Bangers', cursive; font-size: 1rem;
-  letter-spacing: 1px; cursor: pointer;
-  box-shadow: var(--shadow); transition: all 0.12s;
-  white-space: nowrap;
-}
-.btn-primary:active { transform: translate(3px,3px); box-shadow: 1px 1px 0 var(--dark); }
-
-.active-task-box {
-  background: var(--dark); color: white;
-  border-radius: 14px; border: var(--border);
-  padding: 14px; margin-bottom: 14px;
-  box-shadow: var(--shadow-lg);
-}
-.active-task-box .task-name {
-  font-family: 'Bangers', cursive;
-  font-size: 1.3rem; letter-spacing: 2px; color: var(--yellow);
-}
-.active-task-box .task-elapsed {
-  font-size: 0.75rem; color: #aaa; margin-top: 2px;
-}
-.log-entry-row {
-  display: flex; gap: 8px; margin-top: 10px;
-}
-.log-entry-row input {
-  flex: 1; border: 2px solid #444; border-radius: 8px;
-  padding: 8px 12px; background: #2a2a2a; color: white;
-  font-family: 'Nunito', sans-serif; font-size: 0.85rem;
-  font-weight: 600; outline: none;
-}
-.log-entry-row input:focus { border-color: var(--yellow); }
-.cat-select {
-  border: 2px solid #444; border-radius: 8px;
-  padding: 8px 8px; background: #2a2a2a; color: white;
-  font-family: 'Nunito', sans-serif; font-size: 0.8rem;
-  font-weight: 700; outline: none; cursor: pointer;
-}
-.log-btn {
-  background: var(--green); border: 2px solid var(--green);
-  border-radius: 8px; padding: 8px 12px;
-  color: var(--dark); font-family: 'Bangers', cursive;
-  font-size: 0.9rem; cursor: pointer; white-space: nowrap;
-}
-
-.log-list { display: flex; flex-direction: column; gap: 8px; }
-.log-item {
-  background: white; border: var(--border); border-radius: 10px;
-  padding: 10px 14px; display: flex; align-items: flex-start;
-  gap: 10px; box-shadow: 3px 3px 0 var(--dark);
-}
-.log-timestamp {
-  font-family: 'Bangers', cursive; font-size: 0.85rem;
-  color: var(--blue); white-space: nowrap; padding-top: 1px;
-  letter-spacing: 0.5px;
-}
-.log-text { flex: 1; font-size: 0.9rem; font-weight: 700; }
-
-.cat-badge {
-  font-size: 0.65rem; font-weight: 800; letter-spacing: 1px;
-  text-transform: uppercase; padding: 2px 7px;
-  border-radius: 20px; border: 2px solid var(--dark);
-  white-space: nowrap;
-}
-.cat-email { background: #FEF3C7; }
-.cat-project { background: #DBEAFE; }
-.cat-personal { background: #FCE7F3; }
-.cat-family { background: #D1FAE5; }
-.cat-misc { background: #EDE9FE; }
-
-.tracker-empty {
-  text-align: center; padding: 40px 20px; color: #aaa;
-}
-.tracker-empty .empty-icon { font-size: 3rem; margin-bottom: 10px; }
-.tracker-empty p { font-weight: 700; font-size: 0.9rem; }
-
-.end-task-btn {
-  background: var(--red); border: var(--border);
-  color: white; border-radius: 10px; padding: 8px 16px;
-  font-family: 'Bangers', cursive; font-size: 0.95rem;
-  letter-spacing: 1px; cursor: pointer;
-  box-shadow: var(--shadow); margin-top: 10px;
-  width: 100%;
-}
-
-/* ─── BRAINSTORM PANEL ─── */
-.brainstorm-section {
-  background: white; border: var(--border); border-radius: 14px;
-  padding: 14px; margin-bottom: 14px;
-  box-shadow: var(--shadow);
-}
-.section-label {
-  font-family: 'Bangers', cursive; font-size: 1rem;
-  letter-spacing: 2px; text-transform: uppercase;
-  margin-bottom: 10px; display: flex; align-items: center; gap: 6px;
-}
-.brainstorm-textarea {
-  width: 100%; border: 2px solid #ddd; border-radius: 10px;
-  padding: 10px 12px; font-family: 'Nunito', sans-serif;
-  font-size: 0.9rem; font-weight: 600; resize: none;
-  min-height: 90px; outline: none; background: #FFFEF2;
-  line-height: 1.6;
-}
-.brainstorm-textarea:focus { border-color: var(--purple); }
-
-.formula-row {
-  display: flex; gap: 8px; margin: 10px 0;
-  flex-wrap: wrap;
-}
-.formula-input {
-  flex: 1; min-width: 80px; border: var(--border);
-  border-radius: 10px; padding: 9px 12px;
-  font-family: 'Nunito', sans-serif; font-size: 0.9rem;
-  font-weight: 700; outline: none; background: white;
-}
-.formula-input:focus { border-color: var(--purple); }
-.formula-label {
-  font-size: 0.7rem; font-weight: 800; letter-spacing: 1.5px;
-  text-transform: uppercase; color: #888; margin-bottom: 2px;
-}
-.formula-group { display: flex; flex-direction: column; flex: 1; min-width: 80px; }
-
-.generate-btn {
-  background: var(--purple); border: var(--border);
-  color: white; border-radius: 10px; padding: 9px 16px;
-  font-family: 'Bangers', cursive; font-size: 1rem;
-  letter-spacing: 1px; cursor: pointer;
-  box-shadow: var(--shadow); transition: all 0.12s;
-  width: 100%; margin-top: 6px;
-}
-.generate-btn:active { transform: translate(3px,3px); box-shadow: 1px 1px 0 var(--dark); }
-.generate-btn:disabled { opacity: 0.6; cursor: not-allowed; }
-
-.formula-result {
-  border: 2px dashed var(--purple); border-radius: 10px;
-  padding: 12px; background: #FAF5FF; margin-top: 10px;
-  font-size: 0.88rem; font-weight: 700; line-height: 1.6;
-  display: none;
-}
-.formula-result.visible { display: block; }
-.formula-result .result-label {
-  font-family: 'Bangers', cursive; font-size: 0.85rem;
-  letter-spacing: 1.5px; color: var(--purple);
-  text-transform: uppercase; margin-bottom: 6px;
-}
-
-.brain-notes-list {
-  display: flex; flex-direction: column; gap: 8px; margin-top: 10px;
-}
-.brain-note-item {
-  background: var(--yellow); border: var(--border); border-radius: 10px;
-  padding: 10px 12px; display: flex; justify-content: space-between;
-  align-items: flex-start; gap: 8px; box-shadow: 3px 3px 0 var(--dark);
-}
-.brain-note-item .note-text { font-size: 0.88rem; font-weight: 700; flex: 1; }
-.brain-note-item .note-time { font-size: 0.7rem; color: #666; white-space: nowrap; }
-.delete-note { background: none; border: none; cursor: pointer; font-size: 1rem; padding: 0; }
-
-/* ─── CHECKLIST MODAL ─── */
-.modal-overlay {
-  position: fixed; inset: 0; background: rgba(0,0,0,0.65);
-  z-index: 100; display: none; align-items: flex-end;
-}
-.modal-overlay.open { display: flex; }
-.modal-sheet {
-  background: var(--white);
-  background-image: radial-gradient(circle, rgba(0,0,0,0.08) 1px, transparent 1px);
-  background-size: 18px 18px;
-  width: 100%; max-height: 93vh;
-  border-radius: 20px 20px 0 0;
-  border-top: 4px solid var(--dark);
-  display: flex; flex-direction: column;
-  overflow: hidden;
-  animation: slideUp 0.25s ease-out;
-}
-@keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
-
-.modal-header {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 14px 16px 10px; border-bottom: var(--border);
-  flex-shrink: 0;
-}
-.modal-header-left { display: flex; align-items: center; gap: 10px; }
-.modal-icon { font-size: 2rem; }
-.modal-title {
-  font-family: 'Bangers', cursive; font-size: 1.5rem;
-  letter-spacing: 2px; text-transform: uppercase;
-}
-.modal-close {
-  background: var(--dark); color: white; border: none;
-  border-radius: 50%; width: 34px; height: 34px;
-  font-size: 1.1rem; cursor: pointer; flex-shrink: 0;
-}
-.modal-body { flex: 1; overflow-y: auto; padding: 14px 16px; }
-.modal-footer {
-  padding: 12px 16px; border-top: var(--border);
-  display: flex; gap: 8px; flex-shrink: 0;
-}
-
-.checklist-progress {
-  background: #eee; border: 2px solid var(--dark); border-radius: 20px;
-  height: 10px; margin-bottom: 14px; overflow: hidden;
-}
-.checklist-progress-bar {
-  height: 100%; background: var(--green);
-  border-radius: 20px; transition: width 0.3s ease;
-}
-.progress-text {
-  font-size: 0.75rem; font-weight: 800; letter-spacing: 1px;
-  text-transform: uppercase; color: #666; margin-bottom: 10px;
-}
-
-.checklist-item {
-  background: white; border: var(--border); border-radius: 12px;
-  padding: 12px 14px; margin-bottom: 9px;
-  display: flex; align-items: flex-start; gap: 10px;
-  box-shadow: 3px 3px 0 var(--dark);
-  transition: all 0.2s;
-}
-.checklist-item.done {
-  background: #F0FDF4; border-color: var(--green);
-  box-shadow: 3px 3px 0 var(--green);
-}
-.checklist-item.done .item-text {
-  text-decoration: line-through; color: #888;
-}
-.item-check {
-  width: 24px; height: 24px; border: 3px solid var(--dark);
-  border-radius: 6px; cursor: pointer; flex-shrink: 0;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 0.9rem; transition: all 0.15s;
-  background: white;
-}
-.item-check.checked { background: var(--green); border-color: var(--green); }
-.item-body { flex: 1; }
-.item-text { font-size: 0.92rem; font-weight: 700; margin-bottom: 4px; }
-.item-meta { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
-.item-timestamp { font-size: 0.7rem; color: var(--blue); font-weight: 800; }
-.item-cat-select {
-  border: 2px solid #ddd; border-radius: 6px;
-  padding: 2px 6px; font-family: 'Nunito', sans-serif;
-  font-size: 0.7rem; font-weight: 800; outline: none; cursor: pointer;
-  background: white;
-}
-
-.checklist-brainstorm {
-  margin-top: 16px; background: #FFFEF2;
-  border: 2px dashed #ccc; border-radius: 12px; padding: 12px;
-}
-.checklist-brainstorm .section-label { color: var(--orange); }
-.brainstorm-quick-input {
-  display: flex; gap: 8px; margin-top: 6px;
-}
-.brainstorm-quick-input input {
-  flex: 1; border: 2px solid #ddd; border-radius: 8px;
-  padding: 8px 12px; font-family: 'Nunito', sans-serif;
-  font-size: 0.88rem; font-weight: 600; outline: none;
-}
-.brainstorm-quick-input input:focus { border-color: var(--orange); }
-.add-note-btn {
-  background: var(--orange); border: var(--border);
-  color: white; border-radius: 8px; padding: 8px 12px;
-  font-family: 'Bangers', cursive; font-size: 0.9rem;
-  letter-spacing: 1px; cursor: pointer;
-}
-
-/* ─── EXPORT MODAL ─── */
-.export-options { display: flex; flex-direction: column; gap: 10px; }
-.export-btn {
-  display: flex; align-items: center; gap: 12px;
-  background: white; border: var(--border); border-radius: 12px;
-  padding: 14px 16px; cursor: pointer;
-  box-shadow: var(--shadow); transition: all 0.12s;
-  font-family: 'Nunito', sans-serif; font-weight: 800;
-  font-size: 0.95rem; text-decoration: none; color: var(--dark);
-}
-.export-btn:active { transform: translate(3px,3px); box-shadow: 1px 1px 0 var(--dark); }
-.export-icon { font-size: 1.8rem; }
-.export-label { display: flex; flex-direction: column; text-align: left; }
-.export-sub { font-size: 0.72rem; color: #888; font-weight: 600; margin-top: 1px; }
-
-/* ─── SETTINGS MODAL ─── */
-.settings-content { padding: 4px 0; }
-.settings-group { margin-bottom: 16px; }
-.settings-group label {
-  display: block; font-size: 0.8rem; font-weight: 800;
-  text-transform: uppercase; letter-spacing: 1.5px;
-  margin-bottom: 6px; color: #555;
-}
-.settings-input {
-  width: 100%; border: var(--border); border-radius: 10px;
-  padding: 10px 14px; font-family: 'Nunito', sans-serif;
-  font-size: 0.9rem; font-weight: 600; outline: none;
-  background: #FFFEF2;
-}
-.settings-input:focus { border-color: var(--blue); }
-.settings-note { font-size: 0.75rem; color: #888; margin-top: 5px; font-weight: 600; }
-.save-settings-btn {
-  background: var(--blue); border: var(--border); color: white;
-  border-radius: 10px; padding: 10px 20px;
-  font-family: 'Bangers', cursive; font-size: 1.05rem;
-  letter-spacing: 1px; cursor: pointer; box-shadow: var(--shadow);
-  width: 100%;
-}
-
-/* ─── SUB TABS ─── */
-.sub-tab-bar {
-  display: flex; gap: 6px; margin-bottom: 14px; flex-wrap: wrap;
-}
-.sub-tab {
-  background: white; border: var(--border); border-radius: 20px;
-  padding: 6px 14px; font-family: 'Bangers', cursive;
-  font-size: 0.85rem; letter-spacing: 1px; cursor: pointer;
-  box-shadow: 2px 2px 0 var(--dark); transition: all 0.12s;
-}
-.sub-tab.active { background: var(--dark); color: var(--yellow); }
-.sub-panel { display: none; }
-.sub-panel.active { display: block; }
-
-/* ─── ARCHIVE ─── */
-.archive-search-row {
-  display: flex; gap: 8px; margin-bottom: 8px;
-}
-.archive-search-input {
-  flex: 1; border: var(--border); border-radius: 10px;
-  padding: 9px 12px; font-family: 'Nunito', sans-serif;
-  font-size: 0.85rem; font-weight: 700; outline: none;
-  background: white;
-}
-.archive-search-input:focus { border-color: var(--blue); }
-.archive-filter-row {
-  display: flex; gap: 6px; margin-bottom: 12px; flex-wrap: wrap;
-}
-.filter-chip {
-  background: white; border: 2px solid #ddd; border-radius: 20px;
-  padding: 4px 12px; font-size: 0.75rem; font-weight: 800;
-  cursor: pointer; transition: all 0.12s;
-}
-.filter-chip.active { background: var(--dark); color: white; border-color: var(--dark); }
-
-.archive-item {
-  background: white; border: var(--border); border-radius: 12px;
-  margin-bottom: 10px; box-shadow: 3px 3px 0 var(--dark); overflow: hidden;
-}
-.archive-item-header {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 10px 14px; cursor: pointer; background: var(--dark); color: white;
-}
-.archive-item-title { font-family: 'Bangers', cursive; font-size: 1rem; letter-spacing: 1px; }
-.archive-item-meta { font-size: 0.7rem; color: #aaa; display: flex; gap: 8px; align-items: center; }
-.archive-item-body { padding: 10px 14px; display: none; }
-.archive-item-body.open { display: block; }
-.archive-log-row {
-  display: flex; gap: 8px; align-items: flex-start;
-  padding: 4px 0; border-bottom: 1px solid #f0f0f0; font-size: 0.82rem;
-}
-.archive-log-row:last-child { border-bottom: none; }
-.archive-empty { text-align: center; padding: 30px; color: #aaa; font-weight: 700; font-size: 0.9rem; }
-
-/* ─── DAY SUMMARY ─── */
-.summary-date-row {
-  display: flex; align-items: center; justify-content: space-between;
-  margin-bottom: 12px;
-}
-.summary-date-label {
-  font-family: 'Bangers', cursive; font-size: 1.1rem;
-  letter-spacing: 2px; color: var(--blue);
-}
-.stat-row {
-  display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px;
-}
-.stat-box {
-  flex: 1; min-width: 70px; background: var(--yellow);
-  border: var(--border); border-radius: 10px; padding: 10px 8px;
-  text-align: center; box-shadow: 3px 3px 0 var(--dark);
-}
-.stat-num { font-family: 'Bangers', cursive; font-size: 1.6rem; line-height: 1; }
-.stat-label { font-size: 0.65rem; font-weight: 800; letter-spacing: 1px;
-  text-transform: uppercase; color: #555; margin-top: 2px; }
-
-.past-summary-item {
-  background: white; border: var(--border); border-radius: 10px;
-  padding: 10px 14px; margin-bottom: 8px; box-shadow: 2px 2px 0 var(--dark);
-  cursor: pointer;
-}
-.past-summary-date { font-family: 'Bangers', cursive; font-size: 0.95rem;
-  letter-spacing: 1px; color: var(--blue); }
-.past-summary-preview { font-size: 0.8rem; color: #666; font-weight: 600;
-  margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-
-/* ─── UTILITY ─── */
-.flex-row { display: flex; align-items: center; gap: 8px; }
-.spacer { flex: 1; }
-.text-center { text-align: center; }
-.mt-8 { margin-top: 8px; }
-.sync-badge {
-  font-size: 1.1rem; cursor: pointer;
-  opacity: 0.7; transition: all 0.3s;
-  user-select: none;
-}
-.sync-badge.syncing { animation: spin 1s linear infinite; opacity: 1; }
-.sync-badge.saved { opacity: 1; }
-.sync-badge.error { opacity: 1; }
-@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-  background: var(--green); border: var(--border); border-radius: 10px;
-  padding: 10px 14px; text-align: center;
-  font-family: 'Bangers', cursive; font-size: 1.1rem;
-  letter-spacing: 2px; color: white; margin-bottom: 12px;
-  display: none;
-}
-.completed-banner.show { display: block; }
+:root{--yellow:#FFE600;--red:#FF3C38;--blue:#1B5BFF;--green:#00C94F;--purple:#9B5DE5;--orange:#FF8C00;--dark:#1A1A1A;--white:#FFFEF2;--border:3px solid #1A1A1A;--shadow:4px 4px 0px #1A1A1A;--shadow-lg:6px 6px 0px #1A1A1A;}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;overflow:hidden;}
+body{font-family:'Nunito',sans-serif;background:var(--white);background-image:radial-gradient(circle,rgba(0,0,0,0.12) 1.5px,transparent 1.5px);background-size:22px 22px;color:var(--dark);display:flex;flex-direction:column;height:100vh;}
+header{background:var(--dark);color:var(--yellow);padding:10px 18px;display:flex;align-items:center;justify-content:space-between;border-bottom:3px solid var(--dark);flex-shrink:0;z-index:10;}
+header h1{font-family:'Bangers',cursive;font-size:2rem;letter-spacing:3px;line-height:1;}
+header .tagline{font-size:0.65rem;color:#aaa;letter-spacing:2px;text-transform:uppercase;margin-top:1px;}
+.hdr-right{display:flex;align-items:center;gap:8px;}
+.sync-badge{font-size:1.1rem;cursor:pointer;opacity:0.7;transition:all 0.3s;user-select:none;}
+.sync-badge.syncing{animation:spin 1s linear infinite;opacity:1;}
+.sync-badge.saved,.sync-badge.error{opacity:1;}
+@keyframes spin{from{transform:rotate(0deg);}to{transform:rotate(360deg);}}
+.settings-btn{background:none;border:2px solid var(--yellow);color:var(--yellow);border-radius:8px;padding:4px 10px;cursor:pointer;font-size:1.1rem;transition:all 0.15s;}
+.settings-btn:hover{background:var(--yellow);color:var(--dark);}
+.tab-bar{display:flex;background:var(--dark);border-top:3px solid var(--dark);flex-shrink:0;}
+.tab-btn{flex:1;padding:10px 6px 8px;background:none;border:none;cursor:pointer;color:#666;font-family:'Bangers',cursive;font-size:0.85rem;letter-spacing:1.5px;text-transform:uppercase;display:flex;flex-direction:column;align-items:center;gap:2px;transition:all 0.15s;}
+.tab-btn .tab-icon{font-size:1.4rem;}
+.tab-btn.active{color:var(--yellow);}
+.tab-underline{width:0;height:3px;border-radius:2px;}
+.tab-btn.active .tab-underline{width:30px;height:3px;background:var(--yellow);border-radius:2px;}
+.panels{flex:1;overflow:hidden;position:relative;}
+.panel{position:absolute;inset:0;overflow-y:auto;padding:16px;display:none;opacity:0;transition:opacity 0.2s;}
+.panel.active{display:block;opacity:1;}
+.panel-title{font-family:'Bangers',cursive;font-size:1.5rem;letter-spacing:2px;margin-bottom:14px;text-transform:uppercase;}
+.routines-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;}
+.routine-card{border:var(--border);border-radius:14px;padding:16px 12px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:8px;box-shadow:var(--shadow);transition:transform 0.12s,box-shadow 0.12s;position:relative;overflow:hidden;}
+.routine-card:active{transform:translate(3px,3px);box-shadow:1px 1px 0 var(--dark);}
+.routine-card .card-icon{font-size:2.8rem;line-height:1;}
+.routine-card .card-label{font-family:'Bangers',cursive;font-size:1.05rem;letter-spacing:1.5px;text-align:center;text-transform:uppercase;color:var(--dark);}
+.routine-card .step-count{font-size:0.7rem;color:rgba(0,0,0,0.5);font-weight:700;letter-spacing:1px;}
+.card-badge{position:absolute;top:8px;right:8px;width:10px;height:10px;border-radius:50%;border:2px solid var(--dark);}
+.sub-tab-bar{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap;}
+.sub-tab{background:white;border:var(--border);border-radius:20px;padding:6px 14px;font-family:'Bangers',cursive;font-size:0.85rem;letter-spacing:1px;cursor:pointer;box-shadow:2px 2px 0 var(--dark);transition:all 0.12s;}
+.sub-tab.active{background:var(--dark);color:var(--yellow);}
+.sub-panel{display:none;}
+.sub-panel.active{display:block;}
+.tracker-start{display:flex;gap:8px;margin-bottom:16px;}
+.tracker-start input{flex:1;border:var(--border);border-radius:10px;padding:10px 14px;font-family:'Nunito',sans-serif;font-size:0.9rem;font-weight:700;background:white;outline:none;}
+.tracker-start input:focus{border-color:var(--blue);}
+.btn-primary{background:var(--yellow);border:var(--border);border-radius:10px;padding:10px 16px;font-family:'Bangers',cursive;font-size:1rem;letter-spacing:1px;cursor:pointer;box-shadow:var(--shadow);transition:all 0.12s;white-space:nowrap;}
+.btn-primary:active{transform:translate(3px,3px);box-shadow:1px 1px 0 var(--dark);}
+.active-task-box{background:var(--dark);color:white;border-radius:14px;border:var(--border);padding:14px;margin-bottom:14px;box-shadow:var(--shadow-lg);}
+.active-task-box .task-name{font-family:'Bangers',cursive;font-size:1.3rem;letter-spacing:2px;color:var(--yellow);}
+.active-task-box .task-elapsed{font-size:0.75rem;color:#aaa;margin-top:2px;}
+.log-entry-row{display:flex;gap:8px;margin-top:10px;}
+.log-entry-row input{flex:1;border:2px solid #444;border-radius:8px;padding:8px 12px;background:#2a2a2a;color:white;font-family:'Nunito',sans-serif;font-size:0.85rem;font-weight:600;outline:none;}
+.log-entry-row input:focus{border-color:var(--yellow);}
+.cat-select{border:2px solid #444;border-radius:8px;padding:8px 8px;background:#2a2a2a;color:white;font-family:'Nunito',sans-serif;font-size:0.8rem;font-weight:700;outline:none;cursor:pointer;}
+.log-btn{background:var(--green);border:2px solid var(--green);border-radius:8px;padding:8px 12px;color:var(--dark);font-family:'Bangers',cursive;font-size:0.9rem;cursor:pointer;white-space:nowrap;}
+.log-list{display:flex;flex-direction:column;gap:8px;}
+.log-item{background:white;border:var(--border);border-radius:10px;padding:10px 14px;display:flex;align-items:flex-start;gap:10px;box-shadow:3px 3px 0 var(--dark);}
+.log-timestamp{font-family:'Bangers',cursive;font-size:0.85rem;color:var(--blue);white-space:nowrap;padding-top:1px;letter-spacing:0.5px;}
+.log-text{flex:1;font-size:0.9rem;font-weight:700;}
+.cat-badge{font-size:0.65rem;font-weight:800;letter-spacing:1px;text-transform:uppercase;padding:2px 7px;border-radius:20px;border:2px solid var(--dark);white-space:nowrap;}
+.cat-email{background:#FEF3C7;}.cat-project{background:#DBEAFE;}.cat-personal{background:#FCE7F3;}.cat-family{background:#D1FAE5;}.cat-misc{background:#EDE9FE;}
+.tracker-empty{text-align:center;padding:40px 20px;color:#aaa;}
+.tracker-empty .empty-icon{font-size:3rem;margin-bottom:10px;}
+.tracker-empty p{font-weight:700;font-size:0.9rem;}
+.end-task-btn{background:var(--red);border:var(--border);color:white;border-radius:10px;padding:8px 16px;font-family:'Bangers',cursive;font-size:0.95rem;letter-spacing:1px;cursor:pointer;box-shadow:var(--shadow);margin-top:10px;width:100%;}
+.archive-search-row{display:flex;gap:8px;margin-bottom:8px;}
+.archive-search-input{flex:1;border:var(--border);border-radius:10px;padding:9px 12px;font-family:'Nunito',sans-serif;font-size:0.85rem;font-weight:700;outline:none;background:white;}
+.archive-search-input:focus{border-color:var(--blue);}
+.archive-filter-row{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap;}
+.filter-chip{background:white;border:2px solid #ddd;border-radius:20px;padding:4px 12px;font-size:0.75rem;font-weight:800;cursor:pointer;transition:all 0.12s;}
+.filter-chip.active{background:var(--dark);color:white;border-color:var(--dark);}
+.archive-item{background:white;border:var(--border);border-radius:12px;margin-bottom:10px;box-shadow:3px 3px 0 var(--dark);overflow:hidden;}
+.archive-item-header{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;cursor:pointer;background:var(--dark);color:white;}
+.archive-item-title{font-family:'Bangers',cursive;font-size:1rem;letter-spacing:1px;}
+.archive-item-meta{font-size:0.7rem;color:#aaa;display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+.archive-item-body{padding:10px 14px;display:none;}
+.archive-item-body.open{display:block;}
+.archive-log-row{display:flex;gap:8px;align-items:flex-start;padding:4px 0;border-bottom:1px solid #f0f0f0;font-size:0.82rem;}
+.archive-log-row:last-child{border-bottom:none;}
+.archive-empty{text-align:center;padding:30px;color:#aaa;font-weight:700;font-size:0.9rem;}
+.summary-date-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+.summary-date-label{font-family:'Bangers',cursive;font-size:1.1rem;letter-spacing:2px;color:var(--blue);}
+.stat-row{display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+.stat-box{flex:1;min-width:70px;background:var(--yellow);border:var(--border);border-radius:10px;padding:10px 8px;text-align:center;box-shadow:3px 3px 0 var(--dark);}
+.stat-num{font-family:'Bangers',cursive;font-size:1.6rem;line-height:1;}
+.stat-label{font-size:0.65rem;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:#555;margin-top:2px;}
+.past-summary-item{background:white;border:var(--border);border-radius:10px;padding:10px 14px;margin-bottom:8px;box-shadow:2px 2px 0 var(--dark);cursor:pointer;}
+.past-summary-date{font-family:'Bangers',cursive;font-size:0.95rem;letter-spacing:1px;color:var(--blue);}
+.past-summary-preview{font-size:0.8rem;color:#666;font-weight:600;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.brainstorm-section{background:white;border:var(--border);border-radius:14px;padding:14px;margin-bottom:14px;box-shadow:var(--shadow);}
+.section-label{font-family:'Bangers',cursive;font-size:1rem;letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:6px;}
+.brainstorm-textarea{width:100%;border:2px solid #ddd;border-radius:10px;padding:10px 12px;font-family:'Nunito',sans-serif;font-size:0.9rem;font-weight:600;resize:none;min-height:90px;outline:none;background:#FFFEF2;line-height:1.6;}
+.brainstorm-textarea:focus{border-color:var(--purple);}
+.formula-row{display:flex;gap:8px;margin:10px 0;flex-wrap:wrap;}
+.formula-input{flex:1;min-width:80px;border:var(--border);border-radius:10px;padding:9px 12px;font-family:'Nunito',sans-serif;font-size:0.9rem;font-weight:700;outline:none;background:white;}
+.formula-input:focus{border-color:var(--purple);}
+.formula-label{font-size:0.7rem;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:#888;margin-bottom:2px;}
+.formula-group{display:flex;flex-direction:column;flex:1;min-width:80px;}
+.gen-btn-row{display:flex;gap:8px;margin-top:6px;}
+.generate-btn{flex:1;background:var(--purple);border:var(--border);color:white;border-radius:10px;padding:9px 12px;font-family:'Bangers',cursive;font-size:0.95rem;letter-spacing:1px;cursor:pointer;box-shadow:var(--shadow);transition:all 0.12s;}
+.generate-btn.orange{background:var(--orange);}
+.generate-btn:active{transform:translate(3px,3px);box-shadow:1px 1px 0 var(--dark);}
+.generate-btn:disabled{opacity:0.6;cursor:not-allowed;}
+.formula-result{border:2px dashed var(--purple);border-radius:10px;padding:12px;background:#FAF5FF;margin-top:10px;font-size:0.88rem;font-weight:700;line-height:1.6;}
+.formula-result .result-label{font-family:'Bangers',cursive;font-size:0.85rem;letter-spacing:1.5px;color:var(--purple);text-transform:uppercase;margin-bottom:6px;}
+.brainstorm-quick-input{display:flex;gap:8px;margin-top:6px;}
+.brainstorm-quick-input input{flex:1;border:2px solid #ddd;border-radius:8px;padding:8px 12px;font-family:'Nunito',sans-serif;font-size:0.88rem;font-weight:600;outline:none;}
+.brainstorm-quick-input input:focus{border-color:var(--orange);}
+.add-note-btn{background:var(--orange);border:var(--border);color:white;border-radius:8px;padding:8px 12px;font-family:'Bangers',cursive;font-size:0.9rem;letter-spacing:1px;cursor:pointer;}
+.brain-notes-list{display:flex;flex-direction:column;gap:8px;margin-top:10px;}
+.brain-note-item{background:var(--yellow);border:var(--border);border-radius:10px;padding:10px 12px;display:flex;justify-content:space-between;align-items:flex-start;gap:8px;box-shadow:3px 3px 0 var(--dark);}
+.brain-note-item .note-text{font-size:0.88rem;font-weight:700;flex:1;}
+.brain-note-item .note-time{font-size:0.7rem;color:#666;white-space:nowrap;}
+.delete-note{background:none;border:none;cursor:pointer;font-size:1rem;padding:0;}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.65);z-index:100;display:none;align-items:flex-end;}
+.modal-overlay.open{display:flex;}
+.modal-sheet{background:var(--white);background-image:radial-gradient(circle,rgba(0,0,0,0.08) 1px,transparent 1px);background-size:18px 18px;width:100%;max-height:93vh;border-radius:20px 20px 0 0;border-top:4px solid var(--dark);display:flex;flex-direction:column;overflow:hidden;animation:slideUp 0.25s ease-out;}
+@keyframes slideUp{from{transform:translateY(100%);}to{transform:translateY(0);}}
+.modal-header{display:flex;align-items:center;justify-content:space-between;padding:14px 16px 10px;border-bottom:var(--border);flex-shrink:0;}
+.modal-header-left{display:flex;align-items:center;gap:10px;}
+.modal-icon{font-size:2rem;}
+.modal-title{font-family:'Bangers',cursive;font-size:1.5rem;letter-spacing:2px;text-transform:uppercase;}
+.modal-close{background:var(--dark);color:white;border:none;border-radius:50%;width:34px;height:34px;font-size:1.1rem;cursor:pointer;flex-shrink:0;}
+.modal-body{flex:1;overflow-y:auto;padding:14px 16px;}
+.modal-footer{padding:12px 16px;border-top:var(--border);display:flex;gap:8px;flex-shrink:0;}
+.checklist-progress{background:#eee;border:2px solid var(--dark);border-radius:20px;height:10px;margin-bottom:14px;overflow:hidden;}
+.checklist-progress-bar{height:100%;background:var(--green);border-radius:20px;transition:width 0.3s ease;}
+.progress-text{font-size:0.75rem;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:#666;margin-bottom:10px;}
+.checklist-item{background:white;border:var(--border);border-radius:12px;padding:12px 14px;margin-bottom:9px;display:flex;align-items:flex-start;gap:10px;box-shadow:3px 3px 0 var(--dark);transition:all 0.2s;}
+.checklist-item.done{background:#F0FDF4;border-color:var(--green);box-shadow:3px 3px 0 var(--green);}
+.checklist-item.done .item-text{text-decoration:line-through;color:#888;}
+.item-check{width:24px;height:24px;border:3px solid var(--dark);border-radius:6px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:0.9rem;transition:all 0.15s;background:white;}
+.item-check.checked{background:var(--green);border-color:var(--green);}
+.item-body{flex:1;}
+.item-text{font-size:0.92rem;font-weight:700;margin-bottom:4px;}
+.item-meta{display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+.item-timestamp{font-size:0.7rem;color:var(--blue);font-weight:800;}
+.item-cat-select{border:2px solid #ddd;border-radius:6px;padding:2px 6px;font-family:'Nunito',sans-serif;font-size:0.7rem;font-weight:800;outline:none;cursor:pointer;background:white;}
+.checklist-brainstorm{margin-top:16px;background:#FFFEF2;border:2px dashed #ccc;border-radius:12px;padding:12px;}
+.completed-banner{background:var(--green);border:var(--border);border-radius:10px;padding:10px 14px;text-align:center;font-family:'Bangers',cursive;font-size:1.1rem;letter-spacing:2px;color:white;margin-bottom:12px;display:none;}
+.completed-banner.show{display:block;}
+.export-options{display:flex;flex-direction:column;gap:10px;}
+.export-btn{display:flex;align-items:center;gap:12px;background:white;border:var(--border);border-radius:12px;padding:14px 16px;cursor:pointer;box-shadow:var(--shadow);transition:all 0.12s;font-family:'Nunito',sans-serif;font-weight:800;font-size:0.95rem;text-decoration:none;color:var(--dark);}
+.export-btn:active{transform:translate(3px,3px);box-shadow:1px 1px 0 var(--dark);}
+.export-icon{font-size:1.8rem;}
+.export-label{display:flex;flex-direction:column;text-align:left;}
+.export-sub{font-size:0.72rem;color:#888;font-weight:600;margin-top:1px;}
+.settings-content{padding:4px 0;}
+.settings-group{margin-bottom:16px;}
+.settings-group label{display:block;font-size:0.8rem;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:6px;color:#555;}
+.settings-input{width:100%;border:var(--border);border-radius:10px;padding:10px 14px;font-family:'Nunito',sans-serif;font-size:0.9rem;font-weight:600;outline:none;background:#FFFEF2;}
+.settings-input:focus{border-color:var(--blue);}
+.settings-note{font-size:0.75rem;color:#888;margin-top:5px;font-weight:600;}
+.save-settings-btn{background:var(--blue);border:var(--border);color:white;border-radius:10px;padding:10px 20px;font-family:'Bangers',cursive;font-size:1.05rem;letter-spacing:1px;cursor:pointer;box-shadow:var(--shadow);width:100%;}
 </style>
 </head>
 <body>
-
-<!-- HEADER -->
 <header>
-  <div>
-    <h1>⚡ BRAINFLOW</h1>
-    <div class="tagline">Routines · Focus · Brain Dump</div>
-  </div>
-  <div style="display:flex;align-items:center;gap:8px;">
-    <div id="sync-status" class="sync-badge" title="Cloud sync status">☁️</div>
-    <button class="settings-btn" onclick="openSettings()">⚙️</button>
+  <div><h1>&#9889; BRAINFLOW</h1><div class="tagline">Routines &middot; Focus &middot; Brain Dump</div></div>
+  <div class="hdr-right">
+    <div id="sync-status" class="sync-badge" title="Cloud sync">&#9729;&#65039;</div>
+    <button class="settings-btn" onclick="openSettings()">&#9881;&#65039;</button>
   </div>
 </header>
-
-<!-- PANELS -->
 <div class="panels">
-
-  <!-- ── ROUTINES PANEL ── -->
+  <!-- ROUTINES -->
   <div class="panel active" id="panel-routines">
-    <div class="panel-title">🗂 Your Routines</div>
+    <div class="panel-title">Your Routines</div>
     <div class="routines-grid" id="routines-grid"></div>
   </div>
-
-  <!-- ── TRACKER PANEL ── -->
+  <!-- TRACKER -->
   <div class="panel" id="panel-tracker">
-    <div class="panel-title">⏱ Task Tracker</div>
-
-    <!-- Sub-tabs -->
+    <div class="panel-title">Task Tracker</div>
     <div class="sub-tab-bar">
-      <button class="sub-tab active" onclick="switchSubTab('active', this)">▶ Active</button>
-      <button class="sub-tab" onclick="switchSubTab('archive', this)">🗄 Archive</button>
-      <button class="sub-tab" onclick="switchSubTab('summary', this)">📊 Day Summary</button>
+      <button class="sub-tab active" onclick="switchSubTab('active',this)">Active</button>
+      <button class="sub-tab" onclick="switchSubTab('archive',this)">Archive</button>
+      <button class="sub-tab" onclick="switchSubTab('summary',this)">Day Summary</button>
     </div>
-
-    <!-- Active Task -->
     <div class="sub-panel active" id="sub-active">
       <div class="tracker-start">
         <input type="text" id="task-name-input" placeholder="What are you working on?" maxlength="60">
         <button class="btn-primary" onclick="startTask()">START</button>
       </div>
       <div id="active-task-area"></div>
-      <div id="log-list-area">
-        <div class="tracker-empty">
-          <div class="empty-icon">⏱</div>
-          <p>Start a task above to begin logging your steps with timestamps.</p>
-        </div>
-      </div>
+      <div id="log-list-area"><div class="tracker-empty"><div class="empty-icon">&#9201;</div><p>Start a task above to log timestamped steps.</p></div></div>
     </div>
-
-    <!-- Archive -->
     <div class="sub-panel" id="sub-archive">
       <div class="archive-search-row">
-        <input type="text" class="archive-search-input" id="archive-search-text" placeholder="🔍 Search task name..." oninput="renderArchive()">
+        <input type="text" class="archive-search-input" id="archive-search-text" placeholder="Search task name..." oninput="renderArchive()">
         <input type="date" class="archive-search-input" id="archive-search-date" style="max-width:145px;" oninput="renderArchive()">
       </div>
       <div class="archive-filter-row">
-        <button class="filter-chip active" onclick="setArchiveCat('all', this)">All</button>
-        <button class="filter-chip" onclick="setArchiveCat('email', this)">📧 Email</button>
-        <button class="filter-chip" onclick="setArchiveCat('project', this)">📁 Project</button>
-        <button class="filter-chip" onclick="setArchiveCat('personal', this)">🙋 Personal</button>
-        <button class="filter-chip" onclick="setArchiveCat('family', this)">👨‍👩‍👦 Family</button>
+        <button class="filter-chip active" onclick="setArchiveCat('all',this)">All</button>
+        <button class="filter-chip" onclick="setArchiveCat('email',this)">Email</button>
+        <button class="filter-chip" onclick="setArchiveCat('project',this)">Project</button>
+        <button class="filter-chip" onclick="setArchiveCat('personal',this)">Personal</button>
+        <button class="filter-chip" onclick="setArchiveCat('family',this)">Family</button>
       </div>
       <div id="archive-list"></div>
     </div>
-
-    <!-- Day Summary -->
     <div class="sub-panel" id="sub-summary">
       <div class="summary-date-row">
         <span class="summary-date-label" id="summary-date-label"></span>
-        <button class="btn-primary" style="padding:6px 12px;font-size:0.8rem;" onclick="generateDaySummary()">✨ AI Summary</button>
+        <button class="btn-primary" style="padding:6px 12px;font-size:0.8rem;" onclick="generateDaySummary()">AI Summary</button>
       </div>
       <div class="brainstorm-section" style="margin-bottom:12px;">
-        <div class="section-label">📝 End of Day Notes</div>
-        <textarea class="brainstorm-textarea" id="day-notes" placeholder="How did today go? What worked, what didn't, what's on your mind..." rows="4" oninput="saveDayNotes()"></textarea>
+        <div class="section-label">End of Day Notes</div>
+        <textarea class="brainstorm-textarea" id="day-notes" placeholder="How did today go? What worked, what didn't..." rows="4" oninput="saveDayNotes()"></textarea>
       </div>
       <div class="brainstorm-section" style="margin-bottom:12px;">
-        <div class="section-label">📈 Today's Stats</div>
+        <div class="section-label">Today's Stats</div>
         <div id="day-stats"></div>
       </div>
-      <div class="brainstorm-section">
-        <div class="section-label">🎯 AI Strategy</div>
-        <div id="ai-summary-output" class="formula-result" style="display:none;">
-          <div class="result-label">📋 Daily Debrief</div>
-          <div id="ai-summary-text"></div>
-        </div>
-        <div id="ai-summary-placeholder" style="color:#aaa;font-size:0.85rem;font-weight:600;">
-          Tap "✨ AI Summary" above to get a strategic analysis of your day.
-        </div>
+      <div class="brainstorm-section" style="margin-bottom:12px;">
+        <div class="section-label">AI Strategy</div>
+        <div id="ai-summary-output" class="formula-result" style="display:none;"><div class="result-label">Daily Debrief</div><div id="ai-summary-text"></div></div>
+        <div id="ai-summary-placeholder" style="color:#aaa;font-size:0.85rem;font-weight:600;">Tap "AI Summary" above for a strategic analysis of your day.</div>
       </div>
-      <div class="brainstorm-section" style="margin-top:12px;">
-        <div class="section-label">📅 Past Summaries</div>
+      <div class="brainstorm-section">
+        <div class="section-label">Past Summaries</div>
         <div id="past-summaries-list"></div>
       </div>
     </div>
   </div>
-
-  <!-- ── BRAINSTORM PANEL ── -->
+  <!-- BRAINSTORM -->
   <div class="panel" id="panel-brainstorm">
-    <div class="panel-title">🧠 Brain Dump</div>
-
-    <!-- Formula Generator -->
+    <div class="panel-title">Brain Dump</div>
     <div class="brainstorm-section">
-      <div class="section-label">🔮 Formula Generator</div>
+      <div class="section-label">Formula Generator</div>
       <textarea class="brainstorm-textarea" id="formula-thought" placeholder="Dump your random thought here..." rows="3"></textarea>
       <div class="formula-row">
-        <div class="formula-group">
-          <div class="formula-label">Noun</div>
-          <input class="formula-input" id="formula-noun" type="text" placeholder="e.g. email">
-        </div>
-        <div class="formula-group">
-          <div class="formula-label">Verb</div>
-          <input class="formula-input" id="formula-verb" type="text" placeholder="e.g. send">
-        </div>
+        <div class="formula-group"><div class="formula-label">Noun</div><input class="formula-input" id="formula-noun" type="text" placeholder="e.g. email"></div>
+        <div class="formula-group"><div class="formula-label">Verb</div><input class="formula-input" id="formula-verb" type="text" placeholder="e.g. send"></div>
       </div>
-      <div style="display:flex;gap:8px;margin-top:6px;">
-        <button class="generate-btn" id="gen-btn" onclick="generateFormula()" style="flex:1;margin-top:0;">✨ AI Generate</button>
-        <button class="generate-btn" id="quick-btn" onclick="quickFormula()" style="flex:1;margin-top:0;background:var(--orange);">⚡ Quick Formula</button>
+      <div class="gen-btn-row">
+        <button class="generate-btn" id="gen-btn" onclick="generateFormula()">AI Generate</button>
+        <button class="generate-btn orange" onclick="quickFormula()">Quick Formula</button>
       </div>
-      <div class="formula-result" id="formula-result">
-        <div class="result-label">📋 Structured Action</div>
-        <div id="formula-output"></div>
-      </div>
+      <div class="formula-result" id="formula-result" style="display:none;"><div class="result-label">Structured Action</div><div id="formula-output"></div></div>
     </div>
-
-    <!-- Quick Notes -->
     <div class="brainstorm-section">
-      <div class="section-label">📌 Capture Notes</div>
+      <div class="section-label">Capture Notes</div>
       <div class="brainstorm-quick-input">
-        <input type="text" id="quick-note-input" placeholder="Quick thought..." maxlength="200"
-          onkeydown="if(event.key==='Enter') addQuickNote()">
+        <input type="text" id="quick-note-input" placeholder="Quick thought..." maxlength="200" onkeydown="if(event.key==='Enter')addQuickNote()">
         <button class="add-note-btn" onclick="addQuickNote()">ADD</button>
       </div>
       <div class="brain-notes-list" id="brain-notes-list"></div>
     </div>
   </div>
 </div>
-
-<!-- TAB BAR -->
 <nav class="tab-bar">
-  <button class="tab-btn active" onclick="switchTab('routines', this)">
-    <span class="tab-icon">🗂</span>
-    <span>Routines</span>
-    <div class="tab-underline"></div>
-  </button>
-  <button class="tab-btn" onclick="switchTab('tracker', this)">
-    <span class="tab-icon">⏱</span>
-    <span>Tracker</span>
-    <div class="tab-underline"></div>
-  </button>
-  <button class="tab-btn" onclick="switchTab('brainstorm', this)">
-    <span class="tab-icon">🧠</span>
-    <span>Brain Dump</span>
-    <div class="tab-underline"></div>
-  </button>
+  <button class="tab-btn active" onclick="switchTab('routines',this)"><span class="tab-icon">&#128193;</span><span>Routines</span><div class="tab-underline"></div></button>
+  <button class="tab-btn" onclick="switchTab('tracker',this)"><span class="tab-icon">&#9201;</span><span>Tracker</span><div class="tab-underline"></div></button>
+  <button class="tab-btn" onclick="switchTab('brainstorm',this)"><span class="tab-icon">&#129504;</span><span>Brain Dump</span><div class="tab-underline"></div></button>
 </nav>
-
-<!-- ─── CHECKLIST MODAL ─── -->
+<!-- CHECKLIST MODAL -->
 <div class="modal-overlay" id="checklist-modal">
   <div class="modal-sheet">
     <div class="modal-header">
-      <div class="modal-header-left">
-        <span class="modal-icon" id="modal-routine-icon"></span>
-        <span class="modal-title" id="modal-routine-title"></span>
-      </div>
-      <button class="modal-close" onclick="closeModal('checklist-modal')">✕</button>
+      <div class="modal-header-left"><span class="modal-icon" id="modal-routine-icon"></span><span class="modal-title" id="modal-routine-title"></span></div>
+      <button class="modal-close" onclick="closeModal('checklist-modal')">X</button>
     </div>
     <div class="modal-body">
       <div class="progress-text" id="progress-text">0 of 0 complete</div>
-      <div class="checklist-progress">
-        <div class="checklist-progress-bar" id="progress-bar" style="width:0%"></div>
-      </div>
-      <div class="completed-banner" id="complete-banner">🎉 ROUTINE COMPLETE!</div>
+      <div class="checklist-progress"><div class="checklist-progress-bar" id="progress-bar" style="width:0%"></div></div>
+      <div class="completed-banner" id="complete-banner">ROUTINE COMPLETE!</div>
       <div id="checklist-items"></div>
       <div class="checklist-brainstorm">
-        <div class="section-label">💡 Quick Brain Dump</div>
+        <div class="section-label" style="color:var(--orange);">Quick Brain Dump</div>
         <div class="brainstorm-quick-input">
-          <input type="text" id="checklist-note-input" placeholder="Jot a thought..." maxlength="200"
-            onkeydown="if(event.key==='Enter') addChecklistNote()">
+          <input type="text" id="checklist-note-input" placeholder="Jot a thought..." maxlength="200" onkeydown="if(event.key==='Enter')addChecklistNote()">
           <button class="add-note-btn" onclick="addChecklistNote()">ADD</button>
         </div>
         <div class="brain-notes-list" id="checklist-notes-list" style="margin-top:10px;"></div>
       </div>
     </div>
     <div class="modal-footer">
-      <button class="btn-primary" style="flex:1" onclick="openExport()">📤 EXPORT</button>
-      <button class="btn-primary" style="background:var(--red);color:white;flex:1" onclick="resetChecklist()">🔄 RESET</button>
+      <button class="btn-primary" style="flex:1" onclick="openExport()">Export</button>
+      <button class="btn-primary" style="background:var(--red);color:white;flex:1" onclick="resetChecklist()">Reset</button>
     </div>
   </div>
 </div>
-
-<!-- ─── EXPORT MODAL ─── -->
+<!-- EXPORT MODAL -->
 <div class="modal-overlay" id="export-modal">
-  <div class="modal-sheet" style="max-height: 60vh;">
-    <div class="modal-header">
-      <span class="modal-title">📤 Export Checklist</span>
-      <button class="modal-close" onclick="closeModal('export-modal')">✕</button>
-    </div>
+  <div class="modal-sheet" style="max-height:60vh;">
+    <div class="modal-header"><span class="modal-title">Export Checklist</span><button class="modal-close" onclick="closeModal('export-modal')">X</button></div>
     <div class="modal-body">
       <div class="export-options">
-        <button class="export-btn" onclick="exportAppleNotes()">
-          <span class="export-icon">📝</span>
-          <div class="export-label">
-            <span>Apple Notes</span>
-            <span class="export-sub">Copies formatted text to clipboard</span>
-          </div>
-        </button>
-        <button class="export-btn" onclick="exportThings()">
-          <span class="export-icon">✅</span>
-          <div class="export-label">
-            <span>Things 3</span>
-            <span class="export-sub">Opens Things 3 with tasks imported</span>
-          </div>
-        </button>
-        <button class="export-btn" onclick="exportReminders()">
-          <span class="export-icon">🔔</span>
-          <div class="export-label">
-            <span>Reminders</span>
-            <span class="export-sub">Copies list for Reminders import</span>
-          </div>
-        </button>
+        <button class="export-btn" onclick="exportAppleNotes()"><span class="export-icon">&#128221;</span><div class="export-label"><span>Apple Notes</span><span class="export-sub">Copies formatted text to clipboard</span></div></button>
+        <button class="export-btn" onclick="exportThings()"><span class="export-icon">&#9989;</span><div class="export-label"><span>Things 3</span><span class="export-sub">Opens Things 3 with tasks imported</span></div></button>
+        <button class="export-btn" onclick="exportReminders()"><span class="export-icon">&#128276;</span><div class="export-label"><span>Reminders</span><span class="export-sub">Copies list for Reminders import</span></div></button>
       </div>
     </div>
   </div>
 </div>
-
-<!-- ─── SETTINGS MODAL ─── -->
+<!-- SETTINGS MODAL -->
 <div class="modal-overlay" id="settings-modal">
-  <div class="modal-sheet" style="max-height: 55vh;">
-    <div class="modal-header">
-      <span class="modal-title">⚙️ Settings</span>
-      <button class="modal-close" onclick="closeModal('settings-modal')">✕</button>
-    </div>
+  <div class="modal-sheet" style="max-height:60vh;">
+    <div class="modal-header"><span class="modal-title">Settings</span><button class="modal-close" onclick="closeModal('settings-modal')">X</button></div>
     <div class="modal-body">
       <div class="settings-content">
-        <div class="settings-group">
-          <label>GitHub Token (Cloud Sync)</label>
-          <input type="password" class="settings-input" id="gh-token-input"
-            placeholder="ghp_...">
-          <div class="settings-note">Your data syncs to a private GitHub Gist — survives browser clears & works across devices.</div>
-        </div>
-        <div class="settings-group">
-          <label>Anthropic API Key</label>
-          <input type="password" class="settings-input" id="api-key-input"
-            placeholder="sk-ant-...">
-          <div class="settings-note">Required for the Brain Dump formula generator.</div>
-        </div>
-        <button class="save-settings-btn" onclick="saveSettings()">💾 SAVE SETTINGS</button>
+        <div class="settings-group"><label>GitHub Token (Cloud Sync)</label><input type="password" class="settings-input" id="gh-token-input" placeholder="ghp_..."><div class="settings-note">Saves all data to a private GitHub Gist so nothing is lost between sessions.</div></div>
+        <div class="settings-group"><label>Anthropic API Key</label><input type="password" class="settings-input" id="api-key-input" placeholder="sk-ant-..."><div class="settings-note">Required for AI Generate and AI Summary features.</div></div>
+        <button class="save-settings-btn" onclick="saveSettings()">Save Settings</button>
       </div>
     </div>
   </div>
 </div>
-
 <script>
-// ─── DATA ───────────────────────────────────────────────────────────────────
-
-const ROUTINES = [
-  {
-    id: 'leaving-home', name: 'Leaving Home', icon: '🚪',
-    color: '#FF3C38',
-    steps: [
-      'Check ID & wallet', 'Keys in hand', 'Phone charged?',
-      'Water bottle filled', 'Lock all doors', 'Lights off', 'Stove/oven off',
-      'Bag packed with everything needed'
-    ]
-  },
-  {
-    id: 'gym', name: 'Gym Time', icon: '💪',
-    color: '#1B5BFF',
-    steps: [
-      'ID / gym membership card', 'Towel packed', 'Earbuds charged & packed',
-      'Water bottle filled', 'Gym clothes on', 'Pre-workout snack',
-      'Headphones in bag', 'Phone ready for music'
-    ]
-  },
-  {
-    id: 'arriving-home', name: 'Arriving Home', icon: '🏡',
-    color: '#00C94F',
-    steps: [
-      'Keys on hook in Goal Section', 'ID in Goal Section',
-      'Phone on charger', 'Change out of outside shoes',
-      'Check mail', 'Wash hands', 'Review tomorrow\'s tasks'
-    ]
-  },
-  {
-    id: 'green-room', name: 'Green Room', icon: '🟩',
-    color: '#00C94F',
-    steps: [
-      'Clear all surfaces', 'Pick up any items off floor',
-      'Organize bookshelf/shelves', 'Wipe down surfaces',
-      'Vacuum or sweep', 'Open window for fresh air',
-      'Check nothing out of place'
-    ]
-  },
-  {
-    id: 'garage', name: 'Garage', icon: '🚗',
-    color: '#FF8C00',
-    steps: [
-      'Clear walkway / no trip hazards', 'Organize tools in proper place',
-      'Check storage bins are labeled', 'Check for any items to throw out',
-      'Sweep floor', 'Car has enough gas?', 'Check car supplies in trunk'
-    ]
-  },
-  {
-    id: 'bathroom', name: 'Bathroom', icon: '🚿',
-    color: '#06B6D4',
-    steps: [
-      'Restock toilet paper', 'Restock toiletries (soap, shampoo)',
-      'Wipe down mirror', 'Clean sink & faucet',
-      'Clean toilet', 'Change hand towel', 'Sweep/mop floor'
-    ]
-  },
-  {
-    id: 'goal-section', name: 'Goal Station', icon: '🎯',
-    color: '#9B5DE5',
-    steps: [
-      'iPhone charging in spot', 'Keys on hook',
-      'ID in designated place', 'Wallet in spot',
-      'Bag packed & ready by door', 'Check items for tomorrow',
-      'Confirm nothing missing'
-    ]
-  },
-  {
-    id: 'morning', name: 'Morning', icon: '☀️',
-    color: '#FFE600',
-    steps: [
-      'Wake up & drink water (16 oz)', 'Brush teeth',
-      'Morning stretch or movement', 'Check today\'s calendar',
-      'Review top 3 priorities for today', 'Breakfast',
-      'Quick journal or intention setting'
-    ]
-  }
+var ROUTINES = [
+  {id:'leaving-home',name:'Leaving Home',icon:'door',emoji:'🚪',color:'#FF3C38',steps:['Check ID and wallet','Keys in hand','Phone charged?','Water bottle filled','Lock all doors','Lights off','Stove and oven off','Bag packed with everything needed']},
+  {id:'gym',name:'Gym Time',icon:'muscle',emoji:'💪',color:'#1B5BFF',steps:['ID or gym membership card','Towel packed','Earbuds charged and packed','Water bottle filled','Gym clothes on','Pre-workout snack or shake','Headphones in bag','Phone ready for music']},
+  {id:'arriving-home',name:'Arriving Home',icon:'house',emoji:'🏡',color:'#00C94F',steps:['Keys on hook in Goal Section','ID in Goal Section','Phone on charger','Change out of outside shoes','Check mail','Wash hands','Review tomorrow\'s tasks']},
+  {id:'green-room',name:'Green Room',icon:'green',emoji:'🟩',color:'#00C94F',steps:['Clear all surfaces','Pick up any items off floor','Organize bookshelf and shelves','Wipe down surfaces','Vacuum or sweep','Open window for fresh air','Check nothing out of place']},
+  {id:'garage',name:'Garage',icon:'car',emoji:'🚗',color:'#FF8C00',steps:['Clear walkway, no trip hazards','Organize tools in proper place','Check storage bins are labeled','Check for any items to throw out','Sweep floor','Car has enough gas?','Check car supplies in trunk']},
+  {id:'bathroom',name:'Bathroom',icon:'shower',emoji:'🚿',color:'#06B6D4',steps:['Restock toilet paper','Restock toiletries, soap, shampoo','Wipe down mirror','Clean sink and faucet','Clean toilet','Change hand towel','Sweep and mop floor']},
+  {id:'goal-section',name:'Goal Station',icon:'target',emoji:'🎯',color:'#9B5DE5',steps:['iPhone charging in spot','Keys on hook','ID in designated place','Wallet in spot','Bag packed and ready by door','Check items for tomorrow','Confirm nothing missing']},
+  {id:'morning',name:'Morning',icon:'sun',emoji:'☀️',color:'#FFE600',steps:['Wake up and drink water (16 oz)','Brush teeth','Morning stretch or movement','Check today\'s calendar','Review top 3 priorities for today','Breakfast','Quick journal or intention setting']}
 ];
 
-// ─── STATE ───────────────────────────────────────────────────────────────────
-let activeRoutine = null;
-let checklistState = {};
-let checklistNotes = [];
-let taskLog = [];
-let taskLogs = [];
-let daySummaries = JSON.parse(localStorage.getItem('bf_day_summaries') || '[]');
-let archiveCatFilter = 'all';
-let activeTask = null;
-let taskStartTime = null;
-let timerInterval = null;
-let brainNotes = JSON.parse(localStorage.getItem('bf_brain_notes') || '[]');
+var activeRoutine = null;
+var checklistState = {};
+var checklistNotes = [];
+var taskLog = [];
+var taskLogs = [];
+var daySummaries = [];
+var archiveCatFilter = 'all';
+var activeTask = null;
+var taskStartTime = null;
+var timerInterval = null;
+var brainNotes = [];
+var syncTimeout = null;
+var GIST_FILENAME = 'brainflow-data.json';
 
-// ─── INIT ─────────────────────────────────────────────────────────────────────
-document.addEventListener('DOMContentLoaded', async () => {
+document.addEventListener('DOMContentLoaded', function() {
   buildRoutineGrid();
   updateSummaryDate();
-  const saved = localStorage.getItem('bf_api_key');
-  if (saved) document.getElementById('api-key-input').value = saved;
-  const loaded = await cloudLoad();
-  if (!loaded) {
+  var savedKey = localStorage.getItem('bf_api_key');
+  if (savedKey) document.getElementById('api-key-input').value = savedKey;
+  var savedToken = localStorage.getItem('bf_gh_token');
+  if (savedToken) {
+    cloudLoad().then(function(loaded) {
+      if (!loaded) {
+        brainNotes = JSON.parse(localStorage.getItem('bf_brain_notes') || '[]');
+        daySummaries = JSON.parse(localStorage.getItem('bf_day_summaries') || '[]');
+      }
+      renderBrainNotes();
+      renderDayStats();
+      renderPastSummaries();
+    });
+  } else {
     brainNotes = JSON.parse(localStorage.getItem('bf_brain_notes') || '[]');
     daySummaries = JSON.parse(localStorage.getItem('bf_day_summaries') || '[]');
+    renderBrainNotes();
+    renderDayStats();
+    renderPastSummaries();
   }
-  renderBrainNotes();
-  renderDayStats();
-  renderPastSummaries();
 });
 
-// ─── TABS ─────────────────────────────────────────────────────────────────────
+function buildRoutineGrid() {
+  var grid = document.getElementById('routines-grid');
+  if (!grid) return;
+  var html = '';
+  for (var i = 0; i < ROUTINES.length; i++) {
+    var r = ROUTINES[i];
+    html += '<div class="routine-card" style="background:' + r.color + '20;border-color:' + r.color + ';" onclick="openChecklist(\'' + r.id + '\')">';
+    html += '<div class="card-badge" style="background:' + r.color + '"></div>';
+    html += '<div class="card-icon" style="font-size:2.8rem;">' + r.emoji + '</div>';
+    html += '<div class="card-label">' + r.name + '</div>';
+    html += '<div class="step-count">' + r.steps.length + ' steps</div>';
+    html += '</div>';
+  }
+  grid.innerHTML = html;
+}
+
 function switchTab(name, btn) {
-  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  var panels = document.querySelectorAll('.panel');
+  var tabs = document.querySelectorAll('.tab-btn');
+  for (var i = 0; i < panels.length; i++) panels[i].classList.remove('active');
+  for (var i = 0; i < tabs.length; i++) tabs[i].classList.remove('active');
   document.getElementById('panel-' + name).classList.add('active');
   btn.classList.add('active');
 }
 
-// ─── SUB TABS ─────────────────────────────────────────────────────────────────
 function switchSubTab(name, btn) {
-  document.querySelectorAll('.sub-panel').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.sub-tab').forEach(b => b.classList.remove('active'));
+  var panels = document.querySelectorAll('.sub-panel');
+  var tabs = document.querySelectorAll('.sub-tab');
+  for (var i = 0; i < panels.length; i++) panels[i].classList.remove('active');
+  for (var i = 0; i < tabs.length; i++) tabs[i].classList.remove('active');
   document.getElementById('sub-' + name).classList.add('active');
   btn.classList.add('active');
   if (name === 'archive') renderArchive();
   if (name === 'summary') { renderDayStats(); renderPastSummaries(); }
 }
 
-
-function buildRoutineGrid() {
-  const grid = document.getElementById('routines-grid');
-  grid.innerHTML = ROUTINES.map(r => `
-    <div class="routine-card" style="background:${r.color}20; border-color:${r.color};"
-      onclick="openChecklist('${r.id}')">
-      <div class="card-badge" style="background:${r.color}"></div>
-      <div class="card-icon">${r.icon}</div>
-      <div class="card-label">${r.name}</div>
-      <div class="step-count">${r.steps.length} steps</div>
-    </div>
-  `).join('');
-}
-
 function openChecklist(routineId) {
-  activeRoutine = ROUTINES.find(r => r.id === routineId);
+  activeRoutine = null;
+  for (var i = 0; i < ROUTINES.length; i++) { if (ROUTINES[i].id === routineId) { activeRoutine = ROUTINES[i]; break; } }
+  if (!activeRoutine) return;
   if (!checklistState[routineId]) {
-    checklistState[routineId] = activeRoutine.steps.map(() => ({
-      done: false, timestamp: '', category: 'personal'
-    }));
+    checklistState[routineId] = [];
+    for (var i = 0; i < activeRoutine.steps.length; i++) checklistState[routineId].push({done:false,timestamp:'',category:'personal'});
   }
   checklistNotes = [];
   document.getElementById('checklist-notes-list').innerHTML = '';
-  document.getElementById('modal-routine-icon').textContent = activeRoutine.icon;
+  document.getElementById('modal-routine-icon').textContent = activeRoutine.emoji;
   document.getElementById('modal-routine-title').textContent = activeRoutine.name;
   renderChecklist();
   openModal('checklist-modal');
 }
 
 function renderChecklist() {
-  const state = checklistState[activeRoutine.id];
-  const done = state.filter(s => s.done).length;
-  const total = state.length;
-  const pct = total ? Math.round((done / total) * 100) : 0;
-
-  document.getElementById('progress-text').textContent = `${done} of ${total} complete`;
+  if (!activeRoutine) return;
+  var state = checklistState[activeRoutine.id];
+  var done = 0;
+  for (var i = 0; i < state.length; i++) { if (state[i].done) done++; }
+  var total = state.length;
+  var pct = total ? Math.round((done/total)*100) : 0;
+  document.getElementById('progress-text').textContent = done + ' of ' + total + ' complete';
   document.getElementById('progress-bar').style.width = pct + '%';
-  document.getElementById('complete-banner').classList.toggle('show', done === total && total > 0);
-
-  document.getElementById('checklist-items').innerHTML = activeRoutine.steps.map((step, i) => `
-    <div class="checklist-item ${state[i].done ? 'done' : ''}" id="ci-${i}">
-      <div class="item-check ${state[i].done ? 'checked' : ''}" onclick="toggleStep(${i})">
-        ${state[i].done ? '✓' : ''}
-      </div>
-      <div class="item-body">
-        <div class="item-text">${step}</div>
-        <div class="item-meta">
-          <select class="item-cat-select" onchange="setCat(${i}, this.value)">
-            <option value="personal" ${state[i].category==='personal'?'selected':''}>🙋 Personal</option>
-            <option value="email" ${state[i].category==='email'?'selected':''}>📧 Email</option>
-            <option value="project" ${state[i].category==='project'?'selected':''}>📁 Project</option>
-            <option value="family" ${state[i].category==='family'?'selected':''}>👨‍👩‍👦 Family</option>
-            <option value="misc" ${state[i].category==='misc'?'selected':''}>📌 Misc</option>
-          </select>
-          ${state[i].timestamp ? `<span class="item-timestamp">✓ ${state[i].timestamp}</span>` : ''}
-        </div>
-      </div>
-    </div>
-  `).join('');
+  var banner = document.getElementById('complete-banner');
+  if (done === total && total > 0) banner.classList.add('show'); else banner.classList.remove('show');
+  var html = '';
+  for (var i = 0; i < activeRoutine.steps.length; i++) {
+    var s = state[i];
+    var cats = ['personal','email','project','family','misc'];
+    var catOpts = '';
+    for (var c = 0; c < cats.length; c++) catOpts += '<option value="' + cats[c] + '"' + (s.category===cats[c]?' selected':'') + '>' + cats[c] + '</option>';
+    html += '<div class="checklist-item' + (s.done?' done':'') + '">';
+    html += '<div class="item-check' + (s.done?' checked':'') + '" onclick="toggleStep(' + i + ')">' + (s.done?'&#10003;':'') + '</div>';
+    html += '<div class="item-body"><div class="item-text">' + activeRoutine.steps[i] + '</div>';
+    html += '<div class="item-meta"><select class="item-cat-select" onchange="setCat(' + i + ',this.value)">' + catOpts + '</select>';
+    if (s.timestamp) html += '<span class="item-timestamp">Done: ' + s.timestamp + '</span>';
+    html += '</div></div></div>';
+  }
+  document.getElementById('checklist-items').innerHTML = html;
 }
 
 function toggleStep(idx) {
-  const state = checklistState[activeRoutine.id];
+  if (!activeRoutine) return;
+  var state = checklistState[activeRoutine.id];
   state[idx].done = !state[idx].done;
-  state[idx].timestamp = state[idx].done ? now() : '';
+  state[idx].timestamp = state[idx].done ? getNow() : '';
   renderChecklist();
   scheduleSave();
 }
 
 function setCat(idx, val) {
+  if (!activeRoutine) return;
   checklistState[activeRoutine.id][idx].category = val;
 }
 
 function resetChecklist() {
-  checklistState[activeRoutine.id] = activeRoutine.steps.map(() => ({
-    done: false, timestamp: '', category: 'personal'
-  }));
+  if (!activeRoutine) return;
+  checklistState[activeRoutine.id] = [];
+  for (var i = 0; i < activeRoutine.steps.length; i++) checklistState[activeRoutine.id].push({done:false,timestamp:'',category:'personal'});
   renderChecklist();
 }
 
 function addChecklistNote() {
-  const input = document.getElementById('checklist-note-input');
-  const text = input.value.trim();
+  var input = document.getElementById('checklist-note-input');
+  var text = input.value.trim();
   if (!text) return;
-  const note = { text, time: now() };
-  checklistNotes.push(note);
+  checklistNotes.push({text:text, time:getNow()});
   input.value = '';
-  const list = document.getElementById('checklist-notes-list');
-  list.innerHTML = checklistNotes.map((n, i) => `
-    <div class="brain-note-item">
-      <span class="note-text">${n.text}</span>
-      <span class="note-time">${n.time}</span>
-    </div>
-  `).join('');
+  var list = document.getElementById('checklist-notes-list');
+  var html = '';
+  for (var i = 0; i < checklistNotes.length; i++) {
+    html += '<div class="brain-note-item"><span class="note-text">' + checklistNotes[i].text + '</span><span class="note-time">' + checklistNotes[i].time + '</span></div>';
+  }
+  list.innerHTML = html;
 }
 
-// ─── EXPORT ───────────────────────────────────────────────────────────────────
-function openExport() {
-  openModal('export-modal');
-}
+function openExport() { openModal('export-modal'); }
 
 function exportAppleNotes() {
   if (!activeRoutine) return;
-  const state = checklistState[activeRoutine.id];
-  let text = `${activeRoutine.icon} ${activeRoutine.name.toUpperCase()} — ${new Date().toLocaleDateString()}\n\n`;
-  activeRoutine.steps.forEach((step, i) => {
-    const s = state[i];
-    text += `${s.done ? '✅' : '☐'} ${step}`;
-    if (s.category) text += ` [${s.category}]`;
-    if (s.timestamp) text += ` (${s.timestamp})`;
+  var state = checklistState[activeRoutine.id];
+  var text = activeRoutine.name.toUpperCase() + ' - ' + new Date().toLocaleDateString() + '\n\n';
+  for (var i = 0; i < activeRoutine.steps.length; i++) {
+    var s = state[i];
+    text += (s.done ? '[x]' : '[ ]') + ' ' + activeRoutine.steps[i] + ' [' + s.category + ']';
+    if (s.timestamp) text += ' (' + s.timestamp + ')';
     text += '\n';
-  });
-  if (checklistNotes.length) {
-    text += '\n📌 NOTES:\n';
-    checklistNotes.forEach(n => text += `• ${n.text}\n`);
   }
-  copyToClipboard(text);
-  alert('✅ Copied! Open Apple Notes and paste (⌘V).');
+  if (checklistNotes.length) { text += '\nNOTES:\n'; for (var i = 0; i < checklistNotes.length; i++) text += '- ' + checklistNotes[i].text + '\n'; }
+  copyText(text);
+  alert('Copied! Open Apple Notes and paste.');
 }
 
 function exportThings() {
   if (!activeRoutine) return;
-  const state = checklistState[activeRoutine.id];
-  const todos = activeRoutine.steps.map((step, i) => ({
-    type: 'to-do',
-    attributes: {
-      title: step,
-      notes: `Category: ${state[i].category}${state[i].timestamp ? ' | Done: ' + state[i].timestamp : ''}`,
-      completed: state[i].done
-    }
-  }));
-  const project = [{
-    type: 'project',
-    attributes: {
-      title: `${activeRoutine.icon} ${activeRoutine.name}`,
-      items: todos
-    }
-  }];
-  const json = encodeURIComponent(JSON.stringify(project));
-  window.location.href = `things:///json?data=${json}`;
+  var state = checklistState[activeRoutine.id];
+  var todos = [];
+  for (var i = 0; i < activeRoutine.steps.length; i++) {
+    todos.push({type:'to-do',attributes:{title:activeRoutine.steps[i],notes:'Category: '+state[i].category,completed:state[i].done}});
+  }
+  var project = [{type:'project',attributes:{title:activeRoutine.name,items:todos}}];
+  window.location.href = 'things:///json?data=' + encodeURIComponent(JSON.stringify(project));
 }
 
 function exportReminders() {
   if (!activeRoutine) return;
-  const state = checklistState[activeRoutine.id];
-  let text = `${activeRoutine.name} — ${new Date().toLocaleDateString()}\n`;
-  activeRoutine.steps.forEach((step, i) => {
-    text += `• ${step} [${state[i].category}]\n`;
-  });
-  copyToClipboard(text);
-  alert('✅ Copied! Open Reminders → Create list → paste items.');
+  var state = checklistState[activeRoutine.id];
+  var text = activeRoutine.name + ' - ' + new Date().toLocaleDateString() + '\n';
+  for (var i = 0; i < activeRoutine.steps.length; i++) text += '- ' + activeRoutine.steps[i] + ' [' + state[i].category + ']\n';
+  copyText(text);
+  alert('Copied! Open Reminders, create a list, and paste.');
 }
 
-function copyToClipboard(text) {
-  if (navigator.clipboard) {
-    navigator.clipboard.writeText(text);
-  } else {
-    const ta = document.createElement('textarea');
-    ta.value = text; ta.style.position = 'fixed';
-    ta.style.opacity = '0'; document.body.appendChild(ta);
-    ta.select(); document.execCommand('copy');
-    document.body.removeChild(ta);
-  }
+function copyText(text) {
+  if (navigator.clipboard) { navigator.clipboard.writeText(text); return; }
+  var ta = document.createElement('textarea');
+  ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+  document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
 }
 
-// ─── TASK TRACKER ─────────────────────────────────────────────────────────────
 function startTask() {
-  const input = document.getElementById('task-name-input');
-  const name = input.value.trim();
+  var input = document.getElementById('task-name-input');
+  var name = input.value.trim();
   if (!name) { input.focus(); return; }
   if (activeTask) { if (!confirm('End current task and start a new one?')) return; endTask(); }
-  activeTask = { name, startTime: Date.now(), startTimeStr: now() };
-  taskLog = [];
-  taskStartTime = Date.now();
-  input.value = '';
-  addLogEntry(`Started: "${name}"`, 'misc', true);
+  activeTask = {name:name, startTime:Date.now(), startTimeStr:getNow()};
+  taskLog = []; taskStartTime = Date.now(); input.value = '';
+  addLogEntry('Started: "' + name + '"', 'misc', true);
   renderTracker();
   if (timerInterval) clearInterval(timerInterval);
-  timerInterval = setInterval(() => updateElapsed(), 1000);
+  timerInterval = setInterval(updateElapsed, 1000);
 }
 
-function addLogEntry(text, cat, auto = false) {
-  taskLog.push({ text, cat, time: now(), auto });
+function addLogEntry(text, cat, auto) {
+  taskLog.push({text:text, cat:cat, time:getNow(), auto:!!auto});
   renderLogList();
 }
 
 function logStep() {
-  const input = document.getElementById('step-input');
-  const cat = document.getElementById('step-cat').value;
-  const text = input.value.trim();
+  var input = document.getElementById('step-input');
+  var cat = document.getElementById('step-cat').value;
+  var text = input.value.trim();
   if (!text) { input.focus(); return; }
-  addLogEntry(text, cat);
-  input.value = '';
-  input.focus();
+  addLogEntry(text, cat, false);
+  input.value = ''; input.focus();
 }
 
 function endTask() {
   if (!activeTask) return;
-  const elapsed = formatElapsed(Date.now() - taskStartTime);
-  addLogEntry(`Ended after ${elapsed}`, 'misc', true);
-  taskLogs.push({ task: activeTask.name, log: [...taskLog], date: new Date().toLocaleDateString(), startTime: activeTask.startTimeStr });
+  var elapsed = formatElapsed(Date.now() - taskStartTime);
+  addLogEntry('Ended after ' + elapsed, 'misc', true);
+  taskLogs.push({task:activeTask.name, log:taskLog.slice(), date:new Date().toLocaleDateString(), startTime:activeTask.startTimeStr});
   clearInterval(timerInterval);
   activeTask = null;
   scheduleSave();
@@ -1153,466 +556,352 @@ function endTask() {
 }
 
 function renderTracker() {
-  const area = document.getElementById('active-task-area');
+  var area = document.getElementById('active-task-area');
   if (!activeTask) { area.innerHTML = ''; return; }
-  area.innerHTML = `
-    <div class="active-task-box">
-      <div class="task-name">📋 ${activeTask.name}</div>
-      <div class="task-elapsed" id="task-elapsed">Running...</div>
-      <div class="log-entry-row">
-        <input type="text" id="step-input" placeholder="Log what you're doing..."
-          onkeydown="if(event.key==='Enter') logStep()">
-        <select class="cat-select" id="step-cat">
-          <option value="personal">🙋</option>
-          <option value="email">📧</option>
-          <option value="project">📁</option>
-          <option value="family">👨‍👩‍👦</option>
-          <option value="misc">📌</option>
-        </select>
-        <button class="log-btn" onclick="logStep()">LOG</button>
-      </div>
-      <button class="end-task-btn" onclick="endTask()">⏹ END TASK</button>
-    </div>
-  `;
+  area.innerHTML = '<div class="active-task-box">'
+    + '<div class="task-name">' + activeTask.name + '</div>'
+    + '<div class="task-elapsed" id="task-elapsed">Running...</div>'
+    + '<div class="log-entry-row">'
+    + '<input type="text" id="step-input" placeholder="Log what you\'re doing..." onkeydown="if(event.key===\'Enter\')logStep()">'
+    + '<select class="cat-select" id="step-cat"><option value="personal">Personal</option><option value="email">Email</option><option value="project">Project</option><option value="family">Family</option><option value="misc">Misc</option></select>'
+    + '<button class="log-btn" onclick="logStep()">LOG</button>'
+    + '</div><button class="end-task-btn" onclick="endTask()">END TASK</button></div>';
   updateElapsed();
 }
 
 function updateElapsed() {
-  const el = document.getElementById('task-elapsed');
-  if (el && taskStartTime) el.textContent = '⏱ ' + formatElapsed(Date.now() - taskStartTime);
+  var el = document.getElementById('task-elapsed');
+  if (el && taskStartTime) el.textContent = formatElapsed(Date.now() - taskStartTime);
 }
 
 function renderLogList() {
-  const area = document.getElementById('log-list-area');
-  if (!taskLog.length) {
-    area.innerHTML = '<div class="tracker-empty"><div class="empty-icon">⏱</div><p>Start a task above to begin logging.</p></div>';
-    return;
+  var area = document.getElementById('log-list-area');
+  if (!taskLog.length) { area.innerHTML = '<div class="tracker-empty"><div class="empty-icon">&#9201;</div><p>Start a task above to begin logging.</p></div>'; return; }
+  var html = '<div class="log-list">';
+  for (var i = taskLog.length - 1; i >= 0; i--) {
+    var e = taskLog[i];
+    html += '<div class="log-item"><span class="log-timestamp">' + e.time + '</span><span class="log-text">' + e.text + '</span><span class="cat-badge cat-' + e.cat + '">' + e.cat + '</span></div>';
   }
-  area.innerHTML = `<div class="log-list">${[...taskLog].reverse().map(e => `
-    <div class="log-item">
-      <span class="log-timestamp">${e.time}</span>
-      <span class="log-text">${e.text}</span>
-      <span class="cat-badge cat-${e.cat}">${e.cat}</span>
-    </div>
-  `).join('')}</div>`;
+  html += '</div>';
+  area.innerHTML = html;
 }
 
-// ─── BRAINSTORM ───────────────────────────────────────────────────────────────
-function addQuickNote() {
-  const input = document.getElementById('quick-note-input');
-  const text = input.value.trim();
-  if (!text) return;
-  brainNotes.unshift({ text, time: now() });
-  saveAndSync();
-  input.value = '';
-  renderBrainNotes();
-}
-
-function deleteBrainNote(idx) {
-  brainNotes.splice(idx, 1);
-  saveAndSync();
-  renderBrainNotes();
-}
-
-function renderBrainNotes() {
-  const list = document.getElementById('brain-notes-list');
-  if (!list) return;
-  list.innerHTML = brainNotes.map((n, i) => `
-    <div class="brain-note-item">
-      <span class="note-text">${n.text}</span>
-      <span class="note-time">${n.time}</span>
-      <button class="delete-note" onclick="deleteBrainNote(${i})">🗑</button>
-    </div>
-  `).join('');
-}
-
-async function generateFormula() {
-  const thought = document.getElementById('formula-thought').value.trim();
-  const noun = document.getElementById('formula-noun').value.trim();
-  const verb = document.getElementById('formula-verb').value.trim();
-  const apiKey = localStorage.getItem('bf_api_key');
-
-  if (!thought && !noun && !verb) { alert('Add a thought, noun, or verb to generate.'); return; }
-  if (!apiKey) { alert('Add your Anthropic API key in Settings ⚙️ first.'); return; }
-
-  const btn = document.getElementById('gen-btn');
-  btn.disabled = true; btn.textContent = '⏳ Generating...';
-
-  const prompt = `You are a productivity coach. The user has a random brain dump thought and wants it structured.
-
-Thought: "${thought || '(none)'}"
-Key noun: "${noun || '(none)'}"
-Key verb: "${verb || '(none)'}"
-
-Create a structured, actionable output in exactly this format (3 lines, no extra text):
-ACTION: [one clear action statement using the verb and noun]
-CONTEXT: [why this matters or when to do it — one phrase]
-NEXT STEP: [the single most immediate next action, very specific]`;
-
-  try {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 1000,
-        messages: [{ role: 'user', content: prompt }]
-      })
-    });
-    const data = await res.json();
-    const text = data.content?.map(b => b.text || '').join('') || 'Could not generate.';
-    document.getElementById('formula-output').innerHTML = text.replace(/\n/g, '<br>');
-    document.getElementById('formula-result').classList.add('visible');
-  } catch (e) {
-    alert('API error. Check your key in Settings.');
-  } finally {
-    btn.disabled = false; btn.textContent = '✨ GENERATE STRUCTURE';
-  }
-}
-
-// ─── CLOUD SYNC (GitHub Gist) ─────────────────────────────────────────────────
-const GIST_FILENAME = 'brainflow-data.json';
-let syncTimeout = null;
-
-function setSyncStatus(state) {
-  const el = document.getElementById('sync-status');
-  if (!el) return;
-  const states = { idle: '☁️', syncing: '🔄', saved: '✅', error: '❌' };
-  el.textContent = states[state] || '☁️';
-  el.className = 'sync-badge ' + (state !== 'idle' ? state : '');
-  if (state === 'saved') setTimeout(() => setSyncStatus('idle'), 3000);
-}
-
-function getCloudData() {
-  return {
-    brainNotes,
-    checklistState,
-    taskLogs: taskLogs.slice(-100),
-    daySummaries: daySummaries.slice(-30),
-    lastSaved: new Date().toISOString()
-  };
-}
-
-async function cloudSave() {
-  const token = localStorage.getItem('bf_gh_token');
-  if (!token) return;
-  setSyncStatus('syncing');
-  const gistId = localStorage.getItem('bf_gist_id');
-  const content = JSON.stringify(getCloudData(), null, 2);
-  const body = { description: 'BrainFlow App Data', public: false,
-    files: { [GIST_FILENAME]: { content } } };
-  try {
-    let res, data;
-    if (gistId) {
-      res = await fetch(`https://api.github.com/gists/${gistId}`, {
-        method: 'PATCH',
-        headers: { Authorization: `token ${token}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify(body)
-      });
-    } else {
-      res = await fetch('https://api.github.com/gists', {
-        method: 'POST',
-        headers: { Authorization: `token ${token}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify(body)
-      });
-    }
-    data = await res.json();
-    if (data.id) localStorage.setItem('bf_gist_id', data.id);
-    setSyncStatus(res.ok ? 'saved' : 'error');
-  } catch (e) { setSyncStatus('error'); }
-}
-
-async function cloudLoad() {
-  const token = localStorage.getItem('bf_gh_token');
-  const gistId = localStorage.getItem('bf_gist_id');
-  if (!token || !gistId) return false;
-  setSyncStatus('syncing');
-  try {
-    const res = await fetch(`https://api.github.com/gists/${gistId}`, {
-      headers: { Authorization: `token ${token}` }
-    });
-    if (!res.ok) { setSyncStatus('error'); return false; }
-    const data = await res.json();
-    const raw = data.files?.[GIST_FILENAME]?.content;
-    if (!raw) { setSyncStatus('idle'); return false; }
-    const parsed = JSON.parse(raw);
-    if (parsed.brainNotes) brainNotes = parsed.brainNotes;
-    if (parsed.checklistState) checklistState = parsed.checklistState;
-    if (parsed.taskLogs) taskLogs = parsed.taskLogs;
-    if (parsed.daySummaries) daySummaries = parsed.daySummaries;
-    setSyncStatus('saved');
-    return true;
-  } catch (e) { setSyncStatus('error'); return false; }
-}
-
-function scheduleSave() {
-  clearTimeout(syncTimeout);
-  syncTimeout = setTimeout(cloudSave, 1500);
-}
-
-// wrap saves to trigger cloud sync
-function saveAndSync() {
-  localStorage.setItem('bf_brain_notes', JSON.stringify(brainNotes));
-  scheduleSave();
-}
-
-// ─── ARCHIVE ─────────────────────────────────────────────────────────────────
 function setArchiveCat(cat, btn) {
   archiveCatFilter = cat;
-  document.querySelectorAll('.filter-chip').forEach(b => b.classList.remove('active'));
+  var chips = document.querySelectorAll('.filter-chip');
+  for (var i = 0; i < chips.length; i++) chips[i].classList.remove('active');
   btn.classList.add('active');
   renderArchive();
 }
 
 function renderArchive() {
-  const list = document.getElementById('archive-list');
+  var list = document.getElementById('archive-list');
   if (!list) return;
-  const searchText = (document.getElementById('archive-search-text')?.value || '').toLowerCase();
-  const searchDate = document.getElementById('archive-search-date')?.value || '';
-
-  let filtered = [...taskLogs].reverse().filter(t => {
-    const matchText = !searchText || t.task.toLowerCase().includes(searchText);
-    const matchDate = !searchDate || t.date === new Date(searchDate + 'T12:00:00').toLocaleDateString();
-    const matchCat = archiveCatFilter === 'all' || t.log.some(l => l.cat === archiveCatFilter);
-    return matchText && matchDate && matchCat;
-  });
-
-  if (!filtered.length) {
-    list.innerHTML = '<div class="archive-empty">No tasks found. Complete tasks to see them here.</div>';
-    return;
+  var searchText = (document.getElementById('archive-search-text') ? document.getElementById('archive-search-text').value : '').toLowerCase();
+  var searchDate = document.getElementById('archive-search-date') ? document.getElementById('archive-search-date').value : '';
+  var filtered = [];
+  for (var i = taskLogs.length - 1; i >= 0; i--) {
+    var t = taskLogs[i];
+    var matchText = !searchText || t.task.toLowerCase().indexOf(searchText) !== -1;
+    var matchDate = !searchDate || t.date === new Date(searchDate + 'T12:00:00').toLocaleDateString();
+    var matchCat = archiveCatFilter === 'all';
+    if (!matchCat) { for (var j = 0; j < t.log.length; j++) { if (t.log[j].cat === archiveCatFilter) { matchCat = true; break; } } }
+    if (matchText && matchDate && matchCat) filtered.push(t);
   }
-
-  list.innerHTML = filtered.map((t, i) => {
-    const cats = [...new Set(t.log.map(l => l.cat))];
-    return `
-    <div class="archive-item">
-      <div class="archive-item-header" onclick="toggleArchiveItem(${i})">
-        <div>
-          <div class="archive-item-title">📋 ${t.task}</div>
-          <div class="archive-item-meta">
-            <span>📅 ${t.date}</span>
-            <span>🕐 ${t.startTime || ''}</span>
-            <span>${t.log.length} steps</span>
-          </div>
-        </div>
-        <span style="color:#aaa;font-size:1.2rem;" id="archive-chevron-${i}">▼</span>
-      </div>
-      <div class="archive-item-body" id="archive-body-${i}">
-        ${t.log.map(l => `
-          <div class="archive-log-row">
-            <span class="log-timestamp" style="font-size:0.75rem;">${l.time}</span>
-            <span style="flex:1;font-size:0.82rem;font-weight:700;">${l.text}</span>
-            <span class="cat-badge cat-${l.cat}" style="font-size:0.6rem;">${l.cat}</span>
-          </div>
-        `).join('')}
-      </div>
-    </div>`;
-  }).join('');
+  if (!filtered.length) { list.innerHTML = '<div class="archive-empty">No tasks found. Complete tasks to see them here.</div>'; return; }
+  var html = '';
+  for (var i = 0; i < filtered.length; i++) {
+    var t = filtered[i];
+    html += '<div class="archive-item">';
+    html += '<div class="archive-item-header" onclick="toggleArchive(' + i + ')">';
+    html += '<div><div class="archive-item-title">' + t.task + '</div>';
+    html += '<div class="archive-item-meta"><span>' + t.date + '</span><span>' + (t.startTime||'') + '</span><span>' + t.log.length + ' steps</span></div></div>';
+    html += '<span id="arch-chev-' + i + '">v</span></div>';
+    html += '<div class="archive-item-body" id="arch-body-' + i + '">';
+    for (var j = 0; j < t.log.length; j++) {
+      var l = t.log[j];
+      html += '<div class="archive-log-row"><span class="log-timestamp" style="font-size:0.75rem;">' + l.time + '</span><span style="flex:1;font-size:0.82rem;font-weight:700;">' + l.text + '</span><span class="cat-badge cat-' + l.cat + '" style="font-size:0.6rem;">' + l.cat + '</span></div>';
+    }
+    html += '</div></div>';
+  }
+  list.innerHTML = html;
 }
 
-function toggleArchiveItem(i) {
-  const body = document.getElementById(`archive-body-${i}`);
-  const chevron = document.getElementById(`archive-chevron-${i}`);
-  body.classList.toggle('open');
-  chevron.textContent = body.classList.contains('open') ? '▲' : '▼';
+function toggleArchive(i) {
+  var body = document.getElementById('arch-body-' + i);
+  var chev = document.getElementById('arch-chev-' + i);
+  if (body.classList.contains('open')) { body.classList.remove('open'); chev.textContent = 'v'; }
+  else { body.classList.add('open'); chev.textContent = '^'; }
 }
 
-// ─── DAY SUMMARY ─────────────────────────────────────────────────────────────
 function updateSummaryDate() {
-  const el = document.getElementById('summary-date-label');
-  if (el) el.textContent = '📅 ' + new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+  var el = document.getElementById('summary-date-label');
+  if (el) el.textContent = new Date().toLocaleDateString('en-US', {weekday:'long',month:'long',day:'numeric'});
 }
 
 function renderDayStats() {
-  const el = document.getElementById('day-stats');
+  var el = document.getElementById('day-stats');
   if (!el) return;
-  const today = new Date().toLocaleDateString();
-  const todayTasks = taskLogs.filter(t => t.date === today);
-  const totalSteps = todayTasks.reduce((a, t) => a + t.log.filter(l => !l.auto).length, 0);
-  const cats = {};
-  todayTasks.forEach(t => t.log.forEach(l => { if (!l.auto) cats[l.cat] = (cats[l.cat] || 0) + 1; }));
-  const topCat = Object.entries(cats).sort((a,b) => b[1]-a[1])[0];
-  el.innerHTML = `<div class="stat-row">
-    <div class="stat-box"><div class="stat-num">${todayTasks.length}</div><div class="stat-label">Tasks Done</div></div>
-    <div class="stat-box" style="background:var(--green);"><div class="stat-num">${totalSteps}</div><div class="stat-label">Steps Logged</div></div>
-    <div class="stat-box" style="background:var(--blue);color:white;"><div class="stat-num">${topCat ? topCat[1] : 0}</div><div class="stat-label">${topCat ? topCat[0] : 'No'} Focus</div></div>
-  </div>`;
+  var today = new Date().toLocaleDateString();
+  var todayTasks = [];
+  for (var i = 0; i < taskLogs.length; i++) { if (taskLogs[i].date === today) todayTasks.push(taskLogs[i]); }
+  var totalSteps = 0;
+  var cats = {};
+  for (var i = 0; i < todayTasks.length; i++) {
+    for (var j = 0; j < todayTasks[i].log.length; j++) {
+      var l = todayTasks[i].log[j];
+      if (!l.auto) { totalSteps++; cats[l.cat] = (cats[l.cat]||0) + 1; }
+    }
+  }
+  var topCat = 'none'; var topCount = 0;
+  for (var k in cats) { if (cats[k] > topCount) { topCount = cats[k]; topCat = k; } }
+  el.innerHTML = '<div class="stat-row">'
+    + '<div class="stat-box"><div class="stat-num">' + todayTasks.length + '</div><div class="stat-label">Tasks Done</div></div>'
+    + '<div class="stat-box" style="background:var(--green);"><div class="stat-num">' + totalSteps + '</div><div class="stat-label">Steps Logged</div></div>'
+    + '<div class="stat-box" style="background:var(--blue);color:white;"><div class="stat-num">' + topCount + '</div><div class="stat-label">' + topCat + ' Focus</div></div>'
+    + '</div>';
 }
 
 function saveDayNotes() {
-  const notes = document.getElementById('day-notes')?.value || '';
-  const today = new Date().toLocaleDateString();
-  let existing = daySummaries.find(s => s.date === today);
-  if (existing) existing.notes = notes;
-  else daySummaries.unshift({ date: today, notes, aiSummary: '' });
+  var notes = document.getElementById('day-notes') ? document.getElementById('day-notes').value : '';
+  var today = new Date().toLocaleDateString();
+  var found = false;
+  for (var i = 0; i < daySummaries.length; i++) { if (daySummaries[i].date === today) { daySummaries[i].notes = notes; found = true; break; } }
+  if (!found) daySummaries.unshift({date:today, notes:notes, aiSummary:''});
   localStorage.setItem('bf_day_summaries', JSON.stringify(daySummaries));
   scheduleSave();
 }
 
 function renderPastSummaries() {
-  const el = document.getElementById('past-summaries-list');
+  var el = document.getElementById('past-summaries-list');
   if (!el) return;
-  const today = new Date().toLocaleDateString();
-  const past = daySummaries.filter(s => s.date !== today).slice(0, 10);
+  var today = new Date().toLocaleDateString();
+  var past = [];
+  for (var i = 0; i < daySummaries.length; i++) { if (daySummaries[i].date !== today) past.push(daySummaries[i]); if (past.length >= 10) break; }
   if (!past.length) { el.innerHTML = '<p style="color:#aaa;font-size:0.85rem;font-weight:600;">Past summaries will appear here.</p>'; return; }
-  el.innerHTML = past.map(s => `
-    <div class="past-summary-item" onclick="loadPastSummary('${s.date}')">
-      <div class="past-summary-date">${s.date}</div>
-      <div class="past-summary-preview">${s.aiSummary || s.notes || 'No notes'}</div>
-    </div>
-  `).join('');
+  var html = '';
+  for (var i = 0; i < past.length; i++) {
+    var s = past[i];
+    html += '<div class="past-summary-item" onclick="loadPastSummary(\'' + s.date.replace(/\//g,'-') + '\')">';
+    html += '<div class="past-summary-date">' + s.date + '</div>';
+    html += '<div class="past-summary-preview">' + (s.aiSummary || s.notes || 'No notes').substring(0,80) + '</div></div>';
+  }
+  el.innerHTML = html;
 }
 
-function loadPastSummary(date) {
-  const s = daySummaries.find(x => x.date === date);
+function loadPastSummary(dateStr) {
+  var date = dateStr.replace(/-/g,'/');
+  var s = null;
+  for (var i = 0; i < daySummaries.length; i++) { if (daySummaries[i].date === date) { s = daySummaries[i]; break; } }
   if (!s) return;
-  const el = document.getElementById('summary-date-label');
-  if (el) el.textContent = '📅 ' + date;
-  const notes = document.getElementById('day-notes');
+  var el = document.getElementById('summary-date-label');
+  if (el) el.textContent = s.date;
+  var notes = document.getElementById('day-notes');
   if (notes) notes.value = s.notes || '';
   if (s.aiSummary) {
-    document.getElementById('ai-summary-text').innerHTML = s.aiSummary;
+    document.getElementById('ai-summary-text').innerHTML = s.aiSummary.replace(/\n/g,'<br>');
     document.getElementById('ai-summary-output').style.display = 'block';
     document.getElementById('ai-summary-placeholder').style.display = 'none';
   }
 }
 
-async function generateDaySummary() {
-  const apiKey = localStorage.getItem('bf_api_key');
-  if (!apiKey) { alert('Add your Anthropic API key in Settings ⚙️ first.'); return; }
-  const today = new Date().toLocaleDateString();
-  const notes = document.getElementById('day-notes')?.value || '';
-  const todayTasks = taskLogs.filter(t => t.date === today);
+function generateDaySummary() {
+  var apiKey = localStorage.getItem('bf_api_key');
+  if (!apiKey) { alert('Add your Anthropic API key in Settings first.'); return; }
+  var today = new Date().toLocaleDateString();
+  var notes = document.getElementById('day-notes') ? document.getElementById('day-notes').value : '';
+  var todayTasks = [];
+  for (var i = 0; i < taskLogs.length; i++) { if (taskLogs[i].date === today) todayTasks.push(taskLogs[i]); }
   if (!todayTasks.length && !notes) { alert('Complete some tasks or add notes first.'); return; }
-
-  const taskSummary = todayTasks.map(t =>
-    `Task: ${t.task}\nSteps: ${t.log.filter(l=>!l.auto).map(l=>`${l.time} — ${l.text} [${l.cat}]`).join(', ')}`
-  ).join('\n\n');
-
-  const prompt = `You are a productivity coach reviewing someone's day. Analyze the following and provide a concise strategic debrief.
-
-TASKS COMPLETED TODAY:
-${taskSummary || 'None logged'}
-
-PERSONAL NOTES:
-${notes || 'None'}
-
-Respond in exactly this format (keep it concise, 1-2 sentences per section):
-WINS: [what went well today]
-PATTERNS: [any trends or habits you notice]
-BOTTLENECKS: [what slowed progress or got skipped]
-TOMORROW: [top 2 strategic priorities for tomorrow]`;
-
-  const btn = document.querySelector('[onclick="generateDaySummary()"]');
-  if (btn) { btn.disabled = true; btn.textContent = '⏳ Analyzing...'; }
-  try {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514', max_tokens: 1000,
-        messages: [{ role: 'user', content: prompt }]
-      })
-    });
-    const data = await res.json();
-    const text = data.content?.map(b => b.text || '').join('') || 'Could not generate.';
-    document.getElementById('ai-summary-text').innerHTML = text.replace(/\n/g, '<br>');
+  var taskSummary = '';
+  for (var i = 0; i < todayTasks.length; i++) {
+    var t = todayTasks[i];
+    taskSummary += 'Task: ' + t.task + '\n';
+    for (var j = 0; j < t.log.length; j++) { if (!t.log[j].auto) taskSummary += t.log[j].time + ' - ' + t.log[j].text + ' [' + t.log[j].cat + ']\n'; }
+    taskSummary += '\n';
+  }
+  var prompt = 'You are a productivity coach reviewing someone\'s day.\n\nTASKS:\n' + (taskSummary||'None') + '\nNOTES:\n' + (notes||'None') + '\n\nRespond in this format:\nWINS: [what went well]\nPATTERNS: [trends you notice]\nBOTTLENECKS: [what slowed progress]\nTOMORROW: [top 2 priorities]';
+  var btn = document.querySelector('[onclick="generateDaySummary()"]');
+  if (btn) { btn.disabled = true; btn.textContent = 'Analyzing...'; }
+  fetch('https://api.anthropic.com/v1/messages', {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,messages:[{role:'user',content:prompt}]})
+  }).then(function(res){return res.json();}).then(function(data){
+    var text = '';
+    if (data.content) { for (var i = 0; i < data.content.length; i++) { if (data.content[i].text) text += data.content[i].text; } }
+    text = text || 'Could not generate summary.';
+    document.getElementById('ai-summary-text').innerHTML = text.replace(/\n/g,'<br>');
     document.getElementById('ai-summary-output').style.display = 'block';
     document.getElementById('ai-summary-placeholder').style.display = 'none';
-    // Save to day summaries
-    let existing = daySummaries.find(s => s.date === today);
-    if (existing) existing.aiSummary = text;
-    else daySummaries.unshift({ date: today, notes, aiSummary: text });
+    var found = false;
+    for (var i = 0; i < daySummaries.length; i++) { if (daySummaries[i].date === today) { daySummaries[i].aiSummary = text; found = true; break; } }
+    if (!found) daySummaries.unshift({date:today, notes:notes, aiSummary:text});
     localStorage.setItem('bf_day_summaries', JSON.stringify(daySummaries));
     scheduleSave();
-  } catch(e) { alert('API error. Check your key in Settings.'); }
-  finally { if (btn) { btn.disabled = false; btn.textContent = '✨ AI Summary'; } }
+  }).catch(function(){ alert('API error. Check your key in Settings.'); })
+  .finally(function(){ if (btn) { btn.disabled = false; btn.textContent = 'AI Summary'; } });
 }
 
+function addQuickNote() {
+  var input = document.getElementById('quick-note-input');
+  var text = input.value.trim();
+  if (!text) return;
+  brainNotes.unshift({text:text, time:getNow()});
+  saveAndSync(); input.value = ''; renderBrainNotes();
+}
 
-  const thought = document.getElementById('formula-thought').value.trim();
-  const noun = document.getElementById('formula-noun').value.trim();
-  const verb = document.getElementById('formula-verb').value.trim();
-  if (!thought && !noun && !verb) { alert('Add a thought, noun, or verb first.'); return; }
+function deleteBrainNote(idx) {
+  brainNotes.splice(idx, 1);
+  saveAndSync(); renderBrainNotes();
+}
 
-  const n = noun || 'this item';
-  const v = verb || 'handle';
-  const lower = (thought + ' ' + noun).toLowerCase();
-
-  let context = 'to stay on track and move forward';
-  let urgency = 'today';
-  let next = `Open your task manager and create a task for "${n}"`;
-
-  if (/email|reply|message|inbox/.test(lower)) {
-    context = 'so communication stays clear and timely';
-    urgency = 'within the next hour';
-    next = 'Open your email, find the thread, and draft your response';
-  } else if (/gym|workout|exercise|train/.test(lower)) {
-    context = 'to stay consistent with your fitness goals';
-    urgency = 'before end of day';
-    next = 'Pack your gym bag and set a departure reminder';
-  } else if (/project|build|create|design|develop/.test(lower)) {
-    context = 'to make measurable progress on your project';
-    urgency = 'this session';
-    next = 'Open the project, identify the first blocking task, and start there';
-  } else if (/family|home|house|clean|organize/.test(lower)) {
-    context = 'to keep your environment and relationships in order';
-    urgency = 'this week';
-    next = 'Block 30 minutes on your calendar and commit to starting';
-  } else if (/call|phone|meet|schedule/.test(lower)) {
-    context = 'to keep things moving and avoid delays';
-    urgency = 'as soon as possible';
-    next = 'Find the contact, open your calendar, and schedule a specific time';
+function renderBrainNotes() {
+  var list = document.getElementById('brain-notes-list');
+  if (!list) return;
+  var html = '';
+  for (var i = 0; i < brainNotes.length; i++) {
+    var n = brainNotes[i];
+    html += '<div class="brain-note-item"><span class="note-text">' + n.text + '</span><span class="note-time">' + n.time + '</span><button class="delete-note" onclick="deleteBrainNote(' + i + ')">X</button></div>';
   }
-
-  const output = `ACTION: ${v.charAt(0).toUpperCase() + v.slice(1)} ${n} — ${urgency}
-CONTEXT: ${context.charAt(0).toUpperCase() + context.slice(1)}
-NEXT STEP: ${next}`;
-
-  document.getElementById('formula-output').innerHTML = output.replace(/\n/g, '<br>');
-  document.getElementById('formula-result').classList.add('visible');
+  list.innerHTML = html;
 }
+
+function generateFormula() {
+  var apiKey = localStorage.getItem('bf_api_key');
+  if (!apiKey) { alert('Add your Anthropic API key in Settings first.'); return; }
+  var thought = document.getElementById('formula-thought').value.trim();
+  var noun = document.getElementById('formula-noun').value.trim();
+  var verb = document.getElementById('formula-verb').value.trim();
+  if (!thought && !noun && !verb) { alert('Add a thought, noun, or verb first.'); return; }
+  var prompt = 'You are a productivity coach. The user has a random brain dump thought.\n\nThought: "' + (thought||'none') + '"\nKey noun: "' + (noun||'none') + '"\nKey verb: "' + (verb||'none') + '"\n\nRespond in exactly this format:\nACTION: [one clear action statement]\nCONTEXT: [why this matters - one phrase]\nNEXT STEP: [single most immediate next action]';
+  var btn = document.getElementById('gen-btn');
+  if (btn) { btn.disabled = true; btn.textContent = 'Generating...'; }
+  fetch('https://api.anthropic.com/v1/messages', {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,messages:[{role:'user',content:prompt}]})
+  }).then(function(res){return res.json();}).then(function(data){
+    var text = '';
+    if (data.content) { for (var i = 0; i < data.content.length; i++) { if (data.content[i].text) text += data.content[i].text; } }
+    document.getElementById('formula-output').innerHTML = (text||'Could not generate.').replace(/\n/g,'<br>');
+    document.getElementById('formula-result').style.display = 'block';
+  }).catch(function(){ alert('API error. Check your key in Settings.'); })
+  .finally(function(){ if (btn) { btn.disabled = false; btn.textContent = 'AI Generate'; } });
+}
+
+function quickFormula() {
+  var thought = document.getElementById('formula-thought').value.trim();
+  var noun = document.getElementById('formula-noun').value.trim();
+  var verb = document.getElementById('formula-verb').value.trim();
+  if (!thought && !noun && !verb) { alert('Add a thought, noun, or verb first.'); return; }
+  var n = noun || 'this item';
+  var v = verb || 'handle';
+  var lower = (thought + ' ' + noun).toLowerCase();
+  var context = 'to stay on track and move forward';
+  var urgency = 'today';
+  var next = 'Open your task manager and create a task for "' + n + '"';
+  if (/email|reply|message|inbox/.test(lower)) { context = 'so communication stays clear and timely'; urgency = 'within the next hour'; next = 'Open your email, find the thread, and draft your response'; }
+  else if (/gym|workout|exercise|train/.test(lower)) { context = 'to stay consistent with your fitness goals'; urgency = 'before end of day'; next = 'Pack your gym bag and set a departure reminder'; }
+  else if (/project|build|create|design|develop/.test(lower)) { context = 'to make measurable progress on your project'; urgency = 'this session'; next = 'Open the project, identify the first blocking task, and start there'; }
+  else if (/family|home|house|clean|organize/.test(lower)) { context = 'to keep your environment and relationships in order'; urgency = 'this week'; next = 'Block 30 minutes on your calendar and commit to starting'; }
+  else if (/call|phone|meet|schedule/.test(lower)) { context = 'to keep things moving and avoid delays'; urgency = 'as soon as possible'; next = 'Find the contact, open your calendar, and schedule a specific time'; }
+  var cap = function(s){ return s.charAt(0).toUpperCase() + s.slice(1); };
+  var output = 'ACTION: ' + cap(v) + ' ' + n + ' - ' + urgency + '<br>CONTEXT: ' + cap(context) + '<br>NEXT STEP: ' + next;
+  document.getElementById('formula-output').innerHTML = output;
+  document.getElementById('formula-result').style.display = 'block';
+}
+
+function setSyncStatus(state) {
+  var el = document.getElementById('sync-status');
+  if (!el) return;
+  var states = {idle:'☁️', syncing:'🔄', saved:'✅', error:'❌'};
+  el.textContent = states[state] || '☁️';
+  el.className = 'sync-badge' + (state !== 'idle' ? ' ' + state : '');
+  if (state === 'saved') setTimeout(function(){ setSyncStatus('idle'); }, 3000);
+}
+
+function getCloudData() {
+  return {brainNotes:brainNotes, checklistState:checklistState, taskLogs:taskLogs.slice(-100), daySummaries:daySummaries.slice(-30), lastSaved:new Date().toISOString()};
+}
+
+function cloudSave() {
+  var token = localStorage.getItem('bf_gh_token');
+  if (!token) return Promise.resolve();
+  setSyncStatus('syncing');
+  var gistId = localStorage.getItem('bf_gist_id');
+  var content = JSON.stringify(getCloudData(), null, 2);
+  var body = JSON.stringify({description:'BrainFlow App Data', public:false, files:{}});
+  var bodyObj = {description:'BrainFlow App Data', public:false, files:{}};
+  bodyObj.files[GIST_FILENAME] = {content:content};
+  var url = gistId ? 'https://api.github.com/gists/' + gistId : 'https://api.github.com/gists';
+  var method = gistId ? 'PATCH' : 'POST';
+  return fetch(url, {method:method, headers:{Authorization:'token '+token,'Content-Type':'application/json'}, body:JSON.stringify(bodyObj)})
+    .then(function(res){return res.json().then(function(data){if(data.id)localStorage.setItem('bf_gist_id',data.id);setSyncStatus(res.ok?'saved':'error');});})
+    .catch(function(){setSyncStatus('error');});
+}
+
+function cloudLoad() {
+  var token = localStorage.getItem('bf_gh_token');
+  var gistId = localStorage.getItem('bf_gist_id');
+  if (!token || !gistId) return Promise.resolve(false);
+  setSyncStatus('syncing');
+  return fetch('https://api.github.com/gists/' + gistId, {headers:{Authorization:'token '+token}})
+    .then(function(res){
+      if (!res.ok) { setSyncStatus('error'); return false; }
+      return res.json().then(function(data){
+        var raw = data.files && data.files[GIST_FILENAME] ? data.files[GIST_FILENAME].content : null;
+        if (!raw) { setSyncStatus('idle'); return false; }
+        var parsed = JSON.parse(raw);
+        if (parsed.brainNotes) brainNotes = parsed.brainNotes;
+        if (parsed.checklistState) checklistState = parsed.checklistState;
+        if (parsed.taskLogs) taskLogs = parsed.taskLogs;
+        if (parsed.daySummaries) daySummaries = parsed.daySummaries;
+        setSyncStatus('saved');
+        return true;
+      });
+    }).catch(function(){setSyncStatus('error');return false;});
+}
+
+function scheduleSave() { clearTimeout(syncTimeout); syncTimeout = setTimeout(cloudSave, 1500); }
+
+function saveAndSync() { localStorage.setItem('bf_brain_notes', JSON.stringify(brainNotes)); scheduleSave(); }
 
 function saveSettings() {
-  const key = document.getElementById('api-key-input').value.trim();
-  const ghToken = document.getElementById('gh-token-input').value.trim();
-  if (key) localStorage.setItem('bf_api_key', key);
-  else localStorage.removeItem('bf_api_key');
-  if (ghToken) { localStorage.setItem('bf_gh_token', ghToken); cloudSave(); }
-  else localStorage.removeItem('bf_gh_token');
+  var key = document.getElementById('api-key-input').value.trim();
+  var ghToken = document.getElementById('gh-token-input').value.trim();
+  if (key) localStorage.setItem('bf_api_key', key); else localStorage.removeItem('bf_api_key');
+  if (ghToken) { localStorage.setItem('bf_gh_token', ghToken); cloudSave(); } else localStorage.removeItem('bf_gh_token');
   closeModal('settings-modal');
-  alert(ghToken ? '✅ Settings saved! Cloud sync active.' : '✅ Settings saved!');
+  alert(ghToken ? 'Settings saved! Cloud sync active.' : 'Settings saved!');
 }
+
 function openSettings() {
-  const savedToken = localStorage.getItem('bf_gh_token');
-  if (savedToken) document.getElementById('gh-token-input').value = savedToken;
+  var t = localStorage.getItem('bf_gh_token');
+  if (t) document.getElementById('gh-token-input').value = t;
   openModal('settings-modal');
 }
 
-// ─── MODAL ────────────────────────────────────────────────────────────────────
 function openModal(id) { document.getElementById(id).classList.add('open'); }
 function closeModal(id) { document.getElementById(id).classList.remove('open'); }
-document.querySelectorAll('.modal-overlay').forEach(m => {
-  m.addEventListener('click', e => { if (e.target === m) m.classList.remove('open'); });
+
+document.querySelectorAll('.modal-overlay').forEach(function(m){
+  m.addEventListener('click', function(e){ if (e.target === m) m.classList.remove('open'); });
 });
 
-// ─── UTILS ────────────────────────────────────────────────────────────────────
-function now() {
-  const d = new Date();
-  const h = d.getHours() % 12 || 12;
-  const m = String(d.getMinutes()).padStart(2, '0');
-  const s = String(d.getSeconds()).padStart(2, '0');
-  const ampm = d.getHours() >= 12 ? 'PM' : 'AM';
-  return `${h}:${m}:${s} ${ampm}`;
+function getNow() {
+  var d = new Date();
+  var h = d.getHours() % 12 || 12;
+  var m = String(d.getMinutes()).padStart(2,'0');
+  var s = String(d.getSeconds()).padStart(2,'0');
+  return h + ':' + m + ':' + s + ' ' + (d.getHours() >= 12 ? 'PM' : 'AM');
 }
 
 function formatElapsed(ms) {
-  const s = Math.floor(ms / 1000);
-  const m = Math.floor(s / 60);
-  const h = Math.floor(m / 60);
-  if (h > 0) return `${h}h ${m % 60}m`;
-  if (m > 0) return `${m}m ${s % 60}s`;
-  return `${s}s`;
+  var s = Math.floor(ms/1000); var m = Math.floor(s/60); var h = Math.floor(m/60);
+  if (h > 0) return h + 'h ' + (m%60) + 'm';
+  if (m > 0) return m + 'm ' + (s%60) + 's';
+  return s + 's';
 }
 </script>
 </body>
