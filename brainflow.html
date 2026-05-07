@@ -537,7 +537,10 @@ header .tagline {
           <input class="formula-input" id="formula-verb" type="text" placeholder="e.g. send">
         </div>
       </div>
-      <button class="generate-btn" id="gen-btn" onclick="generateFormula()">✨ GENERATE STRUCTURE</button>
+      <div style="display:flex;gap:8px;margin-top:6px;">
+        <button class="generate-btn" id="gen-btn" onclick="generateFormula()" style="flex:1;margin-top:0;">✨ AI Generate</button>
+        <button class="generate-btn" id="quick-btn" onclick="quickFormula()" style="flex:1;margin-top:0;background:var(--orange);">⚡ Quick Formula</button>
+      </div>
       <div class="formula-result" id="formula-result">
         <div class="result-label">📋 Structured Action</div>
         <div id="formula-output"></div>
@@ -1192,6 +1195,49 @@ function saveAndSync() {
   scheduleSave();
 }
 
+function quickFormula() {
+  const thought = document.getElementById('formula-thought').value.trim();
+  const noun = document.getElementById('formula-noun').value.trim();
+  const verb = document.getElementById('formula-verb').value.trim();
+  if (!thought && !noun && !verb) { alert('Add a thought, noun, or verb first.'); return; }
+
+  const n = noun || 'this item';
+  const v = verb || 'handle';
+  const lower = (thought + ' ' + noun).toLowerCase();
+
+  let context = 'to stay on track and move forward';
+  let urgency = 'today';
+  let next = `Open your task manager and create a task for "${n}"`;
+
+  if (/email|reply|message|inbox/.test(lower)) {
+    context = 'so communication stays clear and timely';
+    urgency = 'within the next hour';
+    next = 'Open your email, find the thread, and draft your response';
+  } else if (/gym|workout|exercise|train/.test(lower)) {
+    context = 'to stay consistent with your fitness goals';
+    urgency = 'before end of day';
+    next = 'Pack your gym bag and set a departure reminder';
+  } else if (/project|build|create|design|develop/.test(lower)) {
+    context = 'to make measurable progress on your project';
+    urgency = 'this session';
+    next = 'Open the project, identify the first blocking task, and start there';
+  } else if (/family|home|house|clean|organize/.test(lower)) {
+    context = 'to keep your environment and relationships in order';
+    urgency = 'this week';
+    next = 'Block 30 minutes on your calendar and commit to starting';
+  } else if (/call|phone|meet|schedule/.test(lower)) {
+    context = 'to keep things moving and avoid delays';
+    urgency = 'as soon as possible';
+    next = 'Find the contact, open your calendar, and schedule a specific time';
+  }
+
+  const output = `ACTION: ${v.charAt(0).toUpperCase() + v.slice(1)} ${n} — ${urgency}
+CONTEXT: ${context.charAt(0).toUpperCase() + context.slice(1)}
+NEXT STEP: ${next}`;
+
+  document.getElementById('formula-output').innerHTML = output.replace(/\n/g, '<br>');
+  document.getElementById('formula-result').classList.add('visible');
+}
 
 function saveSettings() {
   const key = document.getElementById('api-key-input').value.trim();
