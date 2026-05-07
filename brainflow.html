@@ -1,0 +1,1124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BrainFlow</title>
+<link href="https://fonts.googleapis.com/css2?family=Bangers&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --yellow: #FFE600;
+  --red: #FF3C38;
+  --blue: #1B5BFF;
+  --green: #00C94F;
+  --purple: #9B5DE5;
+  --orange: #FF8C00;
+  --dark: #1A1A1A;
+  --white: #FFFEF2;
+  --border: 3px solid #1A1A1A;
+  --shadow: 4px 4px 0px #1A1A1A;
+  --shadow-lg: 6px 6px 0px #1A1A1A;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; overflow: hidden; }
+body {
+  font-family: 'Nunito', sans-serif;
+  background: var(--white);
+  background-image: radial-gradient(circle, rgba(0,0,0,0.12) 1.5px, transparent 1.5px);
+  background-size: 22px 22px;
+  color: var(--dark);
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+/* ─── HEADER ─── */
+header {
+  background: var(--dark);
+  color: var(--yellow);
+  padding: 10px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 3px solid var(--dark);
+  flex-shrink: 0;
+  z-index: 10;
+}
+header h1 {
+  font-family: 'Bangers', cursive;
+  font-size: 2rem;
+  letter-spacing: 3px;
+  line-height: 1;
+}
+header .tagline {
+  font-size: 0.65rem;
+  color: #aaa;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-top: 1px;
+}
+.settings-btn {
+  background: none; border: 2px solid var(--yellow);
+  color: var(--yellow); border-radius: 8px;
+  padding: 4px 10px; cursor: pointer;
+  font-size: 1.1rem; transition: all 0.15s;
+}
+.settings-btn:hover { background: var(--yellow); color: var(--dark); }
+
+/* ─── TAB BAR ─── */
+.tab-bar {
+  display: flex;
+  background: var(--dark);
+  border-top: 3px solid var(--dark);
+  flex-shrink: 0;
+}
+.tab-btn {
+  flex: 1; padding: 10px 6px 8px;
+  background: none; border: none; cursor: pointer;
+  color: #666; font-family: 'Bangers', cursive;
+  font-size: 0.85rem; letter-spacing: 1.5px;
+  text-transform: uppercase; display: flex;
+  flex-direction: column; align-items: center; gap: 2px;
+  transition: all 0.15s;
+}
+.tab-btn .tab-icon { font-size: 1.4rem; }
+.tab-btn.active { color: var(--yellow); }
+.tab-btn.active .tab-underline {
+  width: 30px; height: 3px;
+  background: var(--yellow); border-radius: 2px;
+}
+.tab-underline { width: 0; height: 3px; border-radius: 2px; }
+
+/* ─── PANELS ─── */
+.panels { flex: 1; overflow: hidden; position: relative; }
+.panel {
+  position: absolute; inset: 0;
+  overflow-y: auto; padding: 16px;
+  display: none; opacity: 0;
+  transition: opacity 0.2s;
+}
+.panel.active { display: block; opacity: 1; }
+
+/* ─── ROUTINES PANEL ─── */
+.panel-title {
+  font-family: 'Bangers', cursive;
+  font-size: 1.5rem; letter-spacing: 2px;
+  margin-bottom: 14px; text-transform: uppercase;
+}
+.routines-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+.routine-card {
+  border: var(--border); border-radius: 14px;
+  padding: 16px 12px; cursor: pointer;
+  display: flex; flex-direction: column;
+  align-items: center; gap: 8px;
+  box-shadow: var(--shadow);
+  transition: transform 0.12s, box-shadow 0.12s;
+  position: relative; overflow: hidden;
+}
+.routine-card:active {
+  transform: translate(3px, 3px);
+  box-shadow: 1px 1px 0 var(--dark);
+}
+.routine-card .card-icon { font-size: 2.8rem; line-height: 1; }
+.routine-card .card-label {
+  font-family: 'Bangers', cursive;
+  font-size: 1.05rem; letter-spacing: 1.5px;
+  text-align: center; text-transform: uppercase;
+  color: var(--dark);
+}
+.routine-card .step-count {
+  font-size: 0.7rem; color: rgba(0,0,0,0.5);
+  font-weight: 700; letter-spacing: 1px;
+}
+.card-badge {
+  position: absolute; top: 8px; right: 8px;
+  width: 10px; height: 10px; border-radius: 50%;
+  border: 2px solid var(--dark);
+}
+
+/* ─── TRACKER PANEL ─── */
+.tracker-start {
+  display: flex; gap: 8px; margin-bottom: 16px;
+}
+.tracker-start input {
+  flex: 1; border: var(--border); border-radius: 10px;
+  padding: 10px 14px; font-family: 'Nunito', sans-serif;
+  font-size: 0.9rem; font-weight: 700;
+  background: white; outline: none;
+}
+.tracker-start input:focus { border-color: var(--blue); }
+.btn-primary {
+  background: var(--yellow); border: var(--border);
+  border-radius: 10px; padding: 10px 16px;
+  font-family: 'Bangers', cursive; font-size: 1rem;
+  letter-spacing: 1px; cursor: pointer;
+  box-shadow: var(--shadow); transition: all 0.12s;
+  white-space: nowrap;
+}
+.btn-primary:active { transform: translate(3px,3px); box-shadow: 1px 1px 0 var(--dark); }
+
+.active-task-box {
+  background: var(--dark); color: white;
+  border-radius: 14px; border: var(--border);
+  padding: 14px; margin-bottom: 14px;
+  box-shadow: var(--shadow-lg);
+}
+.active-task-box .task-name {
+  font-family: 'Bangers', cursive;
+  font-size: 1.3rem; letter-spacing: 2px; color: var(--yellow);
+}
+.active-task-box .task-elapsed {
+  font-size: 0.75rem; color: #aaa; margin-top: 2px;
+}
+.log-entry-row {
+  display: flex; gap: 8px; margin-top: 10px;
+}
+.log-entry-row input {
+  flex: 1; border: 2px solid #444; border-radius: 8px;
+  padding: 8px 12px; background: #2a2a2a; color: white;
+  font-family: 'Nunito', sans-serif; font-size: 0.85rem;
+  font-weight: 600; outline: none;
+}
+.log-entry-row input:focus { border-color: var(--yellow); }
+.cat-select {
+  border: 2px solid #444; border-radius: 8px;
+  padding: 8px 8px; background: #2a2a2a; color: white;
+  font-family: 'Nunito', sans-serif; font-size: 0.8rem;
+  font-weight: 700; outline: none; cursor: pointer;
+}
+.log-btn {
+  background: var(--green); border: 2px solid var(--green);
+  border-radius: 8px; padding: 8px 12px;
+  color: var(--dark); font-family: 'Bangers', cursive;
+  font-size: 0.9rem; cursor: pointer; white-space: nowrap;
+}
+
+.log-list { display: flex; flex-direction: column; gap: 8px; }
+.log-item {
+  background: white; border: var(--border); border-radius: 10px;
+  padding: 10px 14px; display: flex; align-items: flex-start;
+  gap: 10px; box-shadow: 3px 3px 0 var(--dark);
+}
+.log-timestamp {
+  font-family: 'Bangers', cursive; font-size: 0.85rem;
+  color: var(--blue); white-space: nowrap; padding-top: 1px;
+  letter-spacing: 0.5px;
+}
+.log-text { flex: 1; font-size: 0.9rem; font-weight: 700; }
+
+.cat-badge {
+  font-size: 0.65rem; font-weight: 800; letter-spacing: 1px;
+  text-transform: uppercase; padding: 2px 7px;
+  border-radius: 20px; border: 2px solid var(--dark);
+  white-space: nowrap;
+}
+.cat-email { background: #FEF3C7; }
+.cat-project { background: #DBEAFE; }
+.cat-personal { background: #FCE7F3; }
+.cat-family { background: #D1FAE5; }
+.cat-misc { background: #EDE9FE; }
+
+.tracker-empty {
+  text-align: center; padding: 40px 20px; color: #aaa;
+}
+.tracker-empty .empty-icon { font-size: 3rem; margin-bottom: 10px; }
+.tracker-empty p { font-weight: 700; font-size: 0.9rem; }
+
+.end-task-btn {
+  background: var(--red); border: var(--border);
+  color: white; border-radius: 10px; padding: 8px 16px;
+  font-family: 'Bangers', cursive; font-size: 0.95rem;
+  letter-spacing: 1px; cursor: pointer;
+  box-shadow: var(--shadow); margin-top: 10px;
+  width: 100%;
+}
+
+/* ─── BRAINSTORM PANEL ─── */
+.brainstorm-section {
+  background: white; border: var(--border); border-radius: 14px;
+  padding: 14px; margin-bottom: 14px;
+  box-shadow: var(--shadow);
+}
+.section-label {
+  font-family: 'Bangers', cursive; font-size: 1rem;
+  letter-spacing: 2px; text-transform: uppercase;
+  margin-bottom: 10px; display: flex; align-items: center; gap: 6px;
+}
+.brainstorm-textarea {
+  width: 100%; border: 2px solid #ddd; border-radius: 10px;
+  padding: 10px 12px; font-family: 'Nunito', sans-serif;
+  font-size: 0.9rem; font-weight: 600; resize: none;
+  min-height: 90px; outline: none; background: #FFFEF2;
+  line-height: 1.6;
+}
+.brainstorm-textarea:focus { border-color: var(--purple); }
+
+.formula-row {
+  display: flex; gap: 8px; margin: 10px 0;
+  flex-wrap: wrap;
+}
+.formula-input {
+  flex: 1; min-width: 80px; border: var(--border);
+  border-radius: 10px; padding: 9px 12px;
+  font-family: 'Nunito', sans-serif; font-size: 0.9rem;
+  font-weight: 700; outline: none; background: white;
+}
+.formula-input:focus { border-color: var(--purple); }
+.formula-label {
+  font-size: 0.7rem; font-weight: 800; letter-spacing: 1.5px;
+  text-transform: uppercase; color: #888; margin-bottom: 2px;
+}
+.formula-group { display: flex; flex-direction: column; flex: 1; min-width: 80px; }
+
+.generate-btn {
+  background: var(--purple); border: var(--border);
+  color: white; border-radius: 10px; padding: 9px 16px;
+  font-family: 'Bangers', cursive; font-size: 1rem;
+  letter-spacing: 1px; cursor: pointer;
+  box-shadow: var(--shadow); transition: all 0.12s;
+  width: 100%; margin-top: 6px;
+}
+.generate-btn:active { transform: translate(3px,3px); box-shadow: 1px 1px 0 var(--dark); }
+.generate-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+.formula-result {
+  border: 2px dashed var(--purple); border-radius: 10px;
+  padding: 12px; background: #FAF5FF; margin-top: 10px;
+  font-size: 0.88rem; font-weight: 700; line-height: 1.6;
+  display: none;
+}
+.formula-result.visible { display: block; }
+.formula-result .result-label {
+  font-family: 'Bangers', cursive; font-size: 0.85rem;
+  letter-spacing: 1.5px; color: var(--purple);
+  text-transform: uppercase; margin-bottom: 6px;
+}
+
+.brain-notes-list {
+  display: flex; flex-direction: column; gap: 8px; margin-top: 10px;
+}
+.brain-note-item {
+  background: var(--yellow); border: var(--border); border-radius: 10px;
+  padding: 10px 12px; display: flex; justify-content: space-between;
+  align-items: flex-start; gap: 8px; box-shadow: 3px 3px 0 var(--dark);
+}
+.brain-note-item .note-text { font-size: 0.88rem; font-weight: 700; flex: 1; }
+.brain-note-item .note-time { font-size: 0.7rem; color: #666; white-space: nowrap; }
+.delete-note { background: none; border: none; cursor: pointer; font-size: 1rem; padding: 0; }
+
+/* ─── CHECKLIST MODAL ─── */
+.modal-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.65);
+  z-index: 100; display: none; align-items: flex-end;
+}
+.modal-overlay.open { display: flex; }
+.modal-sheet {
+  background: var(--white);
+  background-image: radial-gradient(circle, rgba(0,0,0,0.08) 1px, transparent 1px);
+  background-size: 18px 18px;
+  width: 100%; max-height: 93vh;
+  border-radius: 20px 20px 0 0;
+  border-top: 4px solid var(--dark);
+  display: flex; flex-direction: column;
+  overflow: hidden;
+  animation: slideUp 0.25s ease-out;
+}
+@keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+
+.modal-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 16px 10px; border-bottom: var(--border);
+  flex-shrink: 0;
+}
+.modal-header-left { display: flex; align-items: center; gap: 10px; }
+.modal-icon { font-size: 2rem; }
+.modal-title {
+  font-family: 'Bangers', cursive; font-size: 1.5rem;
+  letter-spacing: 2px; text-transform: uppercase;
+}
+.modal-close {
+  background: var(--dark); color: white; border: none;
+  border-radius: 50%; width: 34px; height: 34px;
+  font-size: 1.1rem; cursor: pointer; flex-shrink: 0;
+}
+.modal-body { flex: 1; overflow-y: auto; padding: 14px 16px; }
+.modal-footer {
+  padding: 12px 16px; border-top: var(--border);
+  display: flex; gap: 8px; flex-shrink: 0;
+}
+
+.checklist-progress {
+  background: #eee; border: 2px solid var(--dark); border-radius: 20px;
+  height: 10px; margin-bottom: 14px; overflow: hidden;
+}
+.checklist-progress-bar {
+  height: 100%; background: var(--green);
+  border-radius: 20px; transition: width 0.3s ease;
+}
+.progress-text {
+  font-size: 0.75rem; font-weight: 800; letter-spacing: 1px;
+  text-transform: uppercase; color: #666; margin-bottom: 10px;
+}
+
+.checklist-item {
+  background: white; border: var(--border); border-radius: 12px;
+  padding: 12px 14px; margin-bottom: 9px;
+  display: flex; align-items: flex-start; gap: 10px;
+  box-shadow: 3px 3px 0 var(--dark);
+  transition: all 0.2s;
+}
+.checklist-item.done {
+  background: #F0FDF4; border-color: var(--green);
+  box-shadow: 3px 3px 0 var(--green);
+}
+.checklist-item.done .item-text {
+  text-decoration: line-through; color: #888;
+}
+.item-check {
+  width: 24px; height: 24px; border: 3px solid var(--dark);
+  border-radius: 6px; cursor: pointer; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.9rem; transition: all 0.15s;
+  background: white;
+}
+.item-check.checked { background: var(--green); border-color: var(--green); }
+.item-body { flex: 1; }
+.item-text { font-size: 0.92rem; font-weight: 700; margin-bottom: 4px; }
+.item-meta { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.item-timestamp { font-size: 0.7rem; color: var(--blue); font-weight: 800; }
+.item-cat-select {
+  border: 2px solid #ddd; border-radius: 6px;
+  padding: 2px 6px; font-family: 'Nunito', sans-serif;
+  font-size: 0.7rem; font-weight: 800; outline: none; cursor: pointer;
+  background: white;
+}
+
+.checklist-brainstorm {
+  margin-top: 16px; background: #FFFEF2;
+  border: 2px dashed #ccc; border-radius: 12px; padding: 12px;
+}
+.checklist-brainstorm .section-label { color: var(--orange); }
+.brainstorm-quick-input {
+  display: flex; gap: 8px; margin-top: 6px;
+}
+.brainstorm-quick-input input {
+  flex: 1; border: 2px solid #ddd; border-radius: 8px;
+  padding: 8px 12px; font-family: 'Nunito', sans-serif;
+  font-size: 0.88rem; font-weight: 600; outline: none;
+}
+.brainstorm-quick-input input:focus { border-color: var(--orange); }
+.add-note-btn {
+  background: var(--orange); border: var(--border);
+  color: white; border-radius: 8px; padding: 8px 12px;
+  font-family: 'Bangers', cursive; font-size: 0.9rem;
+  letter-spacing: 1px; cursor: pointer;
+}
+
+/* ─── EXPORT MODAL ─── */
+.export-options { display: flex; flex-direction: column; gap: 10px; }
+.export-btn {
+  display: flex; align-items: center; gap: 12px;
+  background: white; border: var(--border); border-radius: 12px;
+  padding: 14px 16px; cursor: pointer;
+  box-shadow: var(--shadow); transition: all 0.12s;
+  font-family: 'Nunito', sans-serif; font-weight: 800;
+  font-size: 0.95rem; text-decoration: none; color: var(--dark);
+}
+.export-btn:active { transform: translate(3px,3px); box-shadow: 1px 1px 0 var(--dark); }
+.export-icon { font-size: 1.8rem; }
+.export-label { display: flex; flex-direction: column; text-align: left; }
+.export-sub { font-size: 0.72rem; color: #888; font-weight: 600; margin-top: 1px; }
+
+/* ─── SETTINGS MODAL ─── */
+.settings-content { padding: 4px 0; }
+.settings-group { margin-bottom: 16px; }
+.settings-group label {
+  display: block; font-size: 0.8rem; font-weight: 800;
+  text-transform: uppercase; letter-spacing: 1.5px;
+  margin-bottom: 6px; color: #555;
+}
+.settings-input {
+  width: 100%; border: var(--border); border-radius: 10px;
+  padding: 10px 14px; font-family: 'Nunito', sans-serif;
+  font-size: 0.9rem; font-weight: 600; outline: none;
+  background: #FFFEF2;
+}
+.settings-input:focus { border-color: var(--blue); }
+.settings-note { font-size: 0.75rem; color: #888; margin-top: 5px; font-weight: 600; }
+.save-settings-btn {
+  background: var(--blue); border: var(--border); color: white;
+  border-radius: 10px; padding: 10px 20px;
+  font-family: 'Bangers', cursive; font-size: 1.05rem;
+  letter-spacing: 1px; cursor: pointer; box-shadow: var(--shadow);
+  width: 100%;
+}
+
+/* ─── UTILITY ─── */
+.flex-row { display: flex; align-items: center; gap: 8px; }
+.spacer { flex: 1; }
+.text-center { text-align: center; }
+.mt-8 { margin-top: 8px; }
+.completed-banner {
+  background: var(--green); border: var(--border); border-radius: 10px;
+  padding: 10px 14px; text-align: center;
+  font-family: 'Bangers', cursive; font-size: 1.1rem;
+  letter-spacing: 2px; color: white; margin-bottom: 12px;
+  display: none;
+}
+.completed-banner.show { display: block; }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div>
+    <h1>⚡ BRAINFLOW</h1>
+    <div class="tagline">Routines · Focus · Brain Dump</div>
+  </div>
+  <button class="settings-btn" onclick="openSettings()">⚙️</button>
+</header>
+
+<!-- PANELS -->
+<div class="panels">
+
+  <!-- ── ROUTINES PANEL ── -->
+  <div class="panel active" id="panel-routines">
+    <div class="panel-title">🗂 Your Routines</div>
+    <div class="routines-grid" id="routines-grid"></div>
+  </div>
+
+  <!-- ── TRACKER PANEL ── -->
+  <div class="panel" id="panel-tracker">
+    <div class="panel-title">⏱ Task Tracker</div>
+    <div class="tracker-start">
+      <input type="text" id="task-name-input" placeholder="What are you working on?" maxlength="60">
+      <button class="btn-primary" onclick="startTask()">START</button>
+    </div>
+    <div id="active-task-area"></div>
+    <div id="log-list-area">
+      <div class="tracker-empty">
+        <div class="empty-icon">⏱</div>
+        <p>Start a task above to begin logging your steps with timestamps.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── BRAINSTORM PANEL ── -->
+  <div class="panel" id="panel-brainstorm">
+    <div class="panel-title">🧠 Brain Dump</div>
+
+    <!-- Formula Generator -->
+    <div class="brainstorm-section">
+      <div class="section-label">🔮 Formula Generator</div>
+      <textarea class="brainstorm-textarea" id="formula-thought" placeholder="Dump your random thought here..." rows="3"></textarea>
+      <div class="formula-row">
+        <div class="formula-group">
+          <div class="formula-label">Noun</div>
+          <input class="formula-input" id="formula-noun" type="text" placeholder="e.g. email">
+        </div>
+        <div class="formula-group">
+          <div class="formula-label">Verb</div>
+          <input class="formula-input" id="formula-verb" type="text" placeholder="e.g. send">
+        </div>
+      </div>
+      <button class="generate-btn" id="gen-btn" onclick="generateFormula()">✨ GENERATE STRUCTURE</button>
+      <div class="formula-result" id="formula-result">
+        <div class="result-label">📋 Structured Action</div>
+        <div id="formula-output"></div>
+      </div>
+    </div>
+
+    <!-- Quick Notes -->
+    <div class="brainstorm-section">
+      <div class="section-label">📌 Capture Notes</div>
+      <div class="brainstorm-quick-input">
+        <input type="text" id="quick-note-input" placeholder="Quick thought..." maxlength="200"
+          onkeydown="if(event.key==='Enter') addQuickNote()">
+        <button class="add-note-btn" onclick="addQuickNote()">ADD</button>
+      </div>
+      <div class="brain-notes-list" id="brain-notes-list"></div>
+    </div>
+  </div>
+</div>
+
+<!-- TAB BAR -->
+<nav class="tab-bar">
+  <button class="tab-btn active" onclick="switchTab('routines', this)">
+    <span class="tab-icon">🗂</span>
+    <span>Routines</span>
+    <div class="tab-underline"></div>
+  </button>
+  <button class="tab-btn" onclick="switchTab('tracker', this)">
+    <span class="tab-icon">⏱</span>
+    <span>Tracker</span>
+    <div class="tab-underline"></div>
+  </button>
+  <button class="tab-btn" onclick="switchTab('brainstorm', this)">
+    <span class="tab-icon">🧠</span>
+    <span>Brain Dump</span>
+    <div class="tab-underline"></div>
+  </button>
+</nav>
+
+<!-- ─── CHECKLIST MODAL ─── -->
+<div class="modal-overlay" id="checklist-modal">
+  <div class="modal-sheet">
+    <div class="modal-header">
+      <div class="modal-header-left">
+        <span class="modal-icon" id="modal-routine-icon"></span>
+        <span class="modal-title" id="modal-routine-title"></span>
+      </div>
+      <button class="modal-close" onclick="closeModal('checklist-modal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="progress-text" id="progress-text">0 of 0 complete</div>
+      <div class="checklist-progress">
+        <div class="checklist-progress-bar" id="progress-bar" style="width:0%"></div>
+      </div>
+      <div class="completed-banner" id="complete-banner">🎉 ROUTINE COMPLETE!</div>
+      <div id="checklist-items"></div>
+      <div class="checklist-brainstorm">
+        <div class="section-label">💡 Quick Brain Dump</div>
+        <div class="brainstorm-quick-input">
+          <input type="text" id="checklist-note-input" placeholder="Jot a thought..." maxlength="200"
+            onkeydown="if(event.key==='Enter') addChecklistNote()">
+          <button class="add-note-btn" onclick="addChecklistNote()">ADD</button>
+        </div>
+        <div class="brain-notes-list" id="checklist-notes-list" style="margin-top:10px;"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-primary" style="flex:1" onclick="openExport()">📤 EXPORT</button>
+      <button class="btn-primary" style="background:var(--red);color:white;flex:1" onclick="resetChecklist()">🔄 RESET</button>
+    </div>
+  </div>
+</div>
+
+<!-- ─── EXPORT MODAL ─── -->
+<div class="modal-overlay" id="export-modal">
+  <div class="modal-sheet" style="max-height: 60vh;">
+    <div class="modal-header">
+      <span class="modal-title">📤 Export Checklist</span>
+      <button class="modal-close" onclick="closeModal('export-modal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="export-options">
+        <button class="export-btn" onclick="exportAppleNotes()">
+          <span class="export-icon">📝</span>
+          <div class="export-label">
+            <span>Apple Notes</span>
+            <span class="export-sub">Copies formatted text to clipboard</span>
+          </div>
+        </button>
+        <button class="export-btn" onclick="exportThings()">
+          <span class="export-icon">✅</span>
+          <div class="export-label">
+            <span>Things 3</span>
+            <span class="export-sub">Opens Things 3 with tasks imported</span>
+          </div>
+        </button>
+        <button class="export-btn" onclick="exportReminders()">
+          <span class="export-icon">🔔</span>
+          <div class="export-label">
+            <span>Reminders</span>
+            <span class="export-sub">Copies list for Reminders import</span>
+          </div>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ─── SETTINGS MODAL ─── -->
+<div class="modal-overlay" id="settings-modal">
+  <div class="modal-sheet" style="max-height: 55vh;">
+    <div class="modal-header">
+      <span class="modal-title">⚙️ Settings</span>
+      <button class="modal-close" onclick="closeModal('settings-modal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="settings-content">
+        <div class="settings-group">
+          <label>Anthropic API Key</label>
+          <input type="password" class="settings-input" id="api-key-input"
+            placeholder="sk-ant-...">
+          <div class="settings-note">Required for the Brain Dump formula generator. Your key is stored locally on this device.</div>
+        </div>
+        <button class="save-settings-btn" onclick="saveSettings()">💾 SAVE SETTINGS</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─── DATA ───────────────────────────────────────────────────────────────────
+
+const ROUTINES = [
+  {
+    id: 'leaving-home', name: 'Leaving Home', icon: '🚪',
+    color: '#FF3C38',
+    steps: [
+      'Check ID & wallet', 'Keys in hand', 'Phone charged?',
+      'Water bottle filled', 'Lock all doors', 'Lights off', 'Stove/oven off',
+      'Bag packed with everything needed'
+    ]
+  },
+  {
+    id: 'gym', name: 'Gym Time', icon: '💪',
+    color: '#1B5BFF',
+    steps: [
+      'ID / gym membership card', 'Towel packed', 'Earbuds charged & packed',
+      'Water bottle filled', 'Gym clothes on', 'Pre-workout snack',
+      'Headphones in bag', 'Phone ready for music'
+    ]
+  },
+  {
+    id: 'arriving-home', name: 'Arriving Home', icon: '🏡',
+    color: '#00C94F',
+    steps: [
+      'Keys on hook in Goal Section', 'ID in Goal Section',
+      'Phone on charger', 'Change out of outside shoes',
+      'Check mail', 'Wash hands', 'Review tomorrow\'s tasks'
+    ]
+  },
+  {
+    id: 'green-room', name: 'Green Room', icon: '🟩',
+    color: '#00C94F',
+    steps: [
+      'Clear all surfaces', 'Pick up any items off floor',
+      'Organize bookshelf/shelves', 'Wipe down surfaces',
+      'Vacuum or sweep', 'Open window for fresh air',
+      'Check nothing out of place'
+    ]
+  },
+  {
+    id: 'garage', name: 'Garage', icon: '🚗',
+    color: '#FF8C00',
+    steps: [
+      'Clear walkway / no trip hazards', 'Organize tools in proper place',
+      'Check storage bins are labeled', 'Check for any items to throw out',
+      'Sweep floor', 'Car has enough gas?', 'Check car supplies in trunk'
+    ]
+  },
+  {
+    id: 'bathroom', name: 'Bathroom', icon: '🚿',
+    color: '#06B6D4',
+    steps: [
+      'Restock toilet paper', 'Restock toiletries (soap, shampoo)',
+      'Wipe down mirror', 'Clean sink & faucet',
+      'Clean toilet', 'Change hand towel', 'Sweep/mop floor'
+    ]
+  },
+  {
+    id: 'goal-section', name: 'Goal Station', icon: '🎯',
+    color: '#9B5DE5',
+    steps: [
+      'iPhone charging in spot', 'Keys on hook',
+      'ID in designated place', 'Wallet in spot',
+      'Bag packed & ready by door', 'Check items for tomorrow',
+      'Confirm nothing missing'
+    ]
+  },
+  {
+    id: 'morning', name: 'Morning', icon: '☀️',
+    color: '#FFE600',
+    steps: [
+      'Wake up & drink water (16 oz)', 'Brush teeth',
+      'Morning stretch or movement', 'Check today\'s calendar',
+      'Review top 3 priorities for today', 'Breakfast',
+      'Quick journal or intention setting'
+    ]
+  }
+];
+
+// ─── STATE ───────────────────────────────────────────────────────────────────
+let activeRoutine = null;
+let checklistState = {};
+let checklistNotes = [];
+let taskLog = [];
+let activeTask = null;
+let taskStartTime = null;
+let timerInterval = null;
+let brainNotes = JSON.parse(localStorage.getItem('bf_brain_notes') || '[]');
+
+// ─── INIT ─────────────────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  buildRoutineGrid();
+  renderBrainNotes();
+  const saved = localStorage.getItem('bf_api_key');
+  if (saved) document.getElementById('api-key-input').value = saved;
+});
+
+// ─── TABS ─────────────────────────────────────────────────────────────────────
+function switchTab(name, btn) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('panel-' + name).classList.add('active');
+  btn.classList.add('active');
+}
+
+// ─── ROUTINES ─────────────────────────────────────────────────────────────────
+function buildRoutineGrid() {
+  const grid = document.getElementById('routines-grid');
+  grid.innerHTML = ROUTINES.map(r => `
+    <div class="routine-card" style="background:${r.color}20; border-color:${r.color};"
+      onclick="openChecklist('${r.id}')">
+      <div class="card-badge" style="background:${r.color}"></div>
+      <div class="card-icon">${r.icon}</div>
+      <div class="card-label">${r.name}</div>
+      <div class="step-count">${r.steps.length} steps</div>
+    </div>
+  `).join('');
+}
+
+function openChecklist(routineId) {
+  activeRoutine = ROUTINES.find(r => r.id === routineId);
+  if (!checklistState[routineId]) {
+    checklistState[routineId] = activeRoutine.steps.map(() => ({
+      done: false, timestamp: '', category: 'personal'
+    }));
+  }
+  checklistNotes = [];
+  document.getElementById('checklist-notes-list').innerHTML = '';
+  document.getElementById('modal-routine-icon').textContent = activeRoutine.icon;
+  document.getElementById('modal-routine-title').textContent = activeRoutine.name;
+  renderChecklist();
+  openModal('checklist-modal');
+}
+
+function renderChecklist() {
+  const state = checklistState[activeRoutine.id];
+  const done = state.filter(s => s.done).length;
+  const total = state.length;
+  const pct = total ? Math.round((done / total) * 100) : 0;
+
+  document.getElementById('progress-text').textContent = `${done} of ${total} complete`;
+  document.getElementById('progress-bar').style.width = pct + '%';
+  document.getElementById('complete-banner').classList.toggle('show', done === total && total > 0);
+
+  document.getElementById('checklist-items').innerHTML = activeRoutine.steps.map((step, i) => `
+    <div class="checklist-item ${state[i].done ? 'done' : ''}" id="ci-${i}">
+      <div class="item-check ${state[i].done ? 'checked' : ''}" onclick="toggleStep(${i})">
+        ${state[i].done ? '✓' : ''}
+      </div>
+      <div class="item-body">
+        <div class="item-text">${step}</div>
+        <div class="item-meta">
+          <select class="item-cat-select" onchange="setCat(${i}, this.value)">
+            <option value="personal" ${state[i].category==='personal'?'selected':''}>🙋 Personal</option>
+            <option value="email" ${state[i].category==='email'?'selected':''}>📧 Email</option>
+            <option value="project" ${state[i].category==='project'?'selected':''}>📁 Project</option>
+            <option value="family" ${state[i].category==='family'?'selected':''}>👨‍👩‍👦 Family</option>
+            <option value="misc" ${state[i].category==='misc'?'selected':''}>📌 Misc</option>
+          </select>
+          ${state[i].timestamp ? `<span class="item-timestamp">✓ ${state[i].timestamp}</span>` : ''}
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function toggleStep(idx) {
+  const state = checklistState[activeRoutine.id];
+  state[idx].done = !state[idx].done;
+  state[idx].timestamp = state[idx].done ? now() : '';
+  renderChecklist();
+}
+
+function setCat(idx, val) {
+  checklistState[activeRoutine.id][idx].category = val;
+}
+
+function resetChecklist() {
+  checklistState[activeRoutine.id] = activeRoutine.steps.map(() => ({
+    done: false, timestamp: '', category: 'personal'
+  }));
+  renderChecklist();
+}
+
+function addChecklistNote() {
+  const input = document.getElementById('checklist-note-input');
+  const text = input.value.trim();
+  if (!text) return;
+  const note = { text, time: now() };
+  checklistNotes.push(note);
+  input.value = '';
+  const list = document.getElementById('checklist-notes-list');
+  list.innerHTML = checklistNotes.map((n, i) => `
+    <div class="brain-note-item">
+      <span class="note-text">${n.text}</span>
+      <span class="note-time">${n.time}</span>
+    </div>
+  `).join('');
+}
+
+// ─── EXPORT ───────────────────────────────────────────────────────────────────
+function openExport() {
+  openModal('export-modal');
+}
+
+function exportAppleNotes() {
+  if (!activeRoutine) return;
+  const state = checklistState[activeRoutine.id];
+  let text = `${activeRoutine.icon} ${activeRoutine.name.toUpperCase()} — ${new Date().toLocaleDateString()}\n\n`;
+  activeRoutine.steps.forEach((step, i) => {
+    const s = state[i];
+    text += `${s.done ? '✅' : '☐'} ${step}`;
+    if (s.category) text += ` [${s.category}]`;
+    if (s.timestamp) text += ` (${s.timestamp})`;
+    text += '\n';
+  });
+  if (checklistNotes.length) {
+    text += '\n📌 NOTES:\n';
+    checklistNotes.forEach(n => text += `• ${n.text}\n`);
+  }
+  copyToClipboard(text);
+  alert('✅ Copied! Open Apple Notes and paste (⌘V).');
+}
+
+function exportThings() {
+  if (!activeRoutine) return;
+  const state = checklistState[activeRoutine.id];
+  const todos = activeRoutine.steps.map((step, i) => ({
+    type: 'to-do',
+    attributes: {
+      title: step,
+      notes: `Category: ${state[i].category}${state[i].timestamp ? ' | Done: ' + state[i].timestamp : ''}`,
+      completed: state[i].done
+    }
+  }));
+  const project = [{
+    type: 'project',
+    attributes: {
+      title: `${activeRoutine.icon} ${activeRoutine.name}`,
+      items: todos
+    }
+  }];
+  const json = encodeURIComponent(JSON.stringify(project));
+  window.location.href = `things:///json?data=${json}`;
+}
+
+function exportReminders() {
+  if (!activeRoutine) return;
+  const state = checklistState[activeRoutine.id];
+  let text = `${activeRoutine.name} — ${new Date().toLocaleDateString()}\n`;
+  activeRoutine.steps.forEach((step, i) => {
+    text += `• ${step} [${state[i].category}]\n`;
+  });
+  copyToClipboard(text);
+  alert('✅ Copied! Open Reminders → Create list → paste items.');
+}
+
+function copyToClipboard(text) {
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(text);
+  } else {
+    const ta = document.createElement('textarea');
+    ta.value = text; ta.style.position = 'fixed';
+    ta.style.opacity = '0'; document.body.appendChild(ta);
+    ta.select(); document.execCommand('copy');
+    document.body.removeChild(ta);
+  }
+}
+
+// ─── TASK TRACKER ─────────────────────────────────────────────────────────────
+function startTask() {
+  const input = document.getElementById('task-name-input');
+  const name = input.value.trim();
+  if (!name) { input.focus(); return; }
+  if (activeTask) { if (!confirm('End current task and start a new one?')) return; endTask(); }
+  activeTask = { name, startTime: Date.now() };
+  taskLog = [];
+  taskStartTime = Date.now();
+  input.value = '';
+  addLogEntry(`Started: "${name}"`, 'misc', true);
+  renderTracker();
+  if (timerInterval) clearInterval(timerInterval);
+  timerInterval = setInterval(() => updateElapsed(), 1000);
+}
+
+function addLogEntry(text, cat, auto = false) {
+  taskLog.push({ text, cat, time: now(), auto });
+  renderLogList();
+}
+
+function logStep() {
+  const input = document.getElementById('step-input');
+  const cat = document.getElementById('step-cat').value;
+  const text = input.value.trim();
+  if (!text) { input.focus(); return; }
+  addLogEntry(text, cat);
+  input.value = '';
+  input.focus();
+}
+
+function endTask() {
+  if (!activeTask) return;
+  const elapsed = formatElapsed(Date.now() - taskStartTime);
+  addLogEntry(`Ended after ${elapsed}`, 'misc', true);
+  clearInterval(timerInterval);
+  activeTask = null;
+  renderTracker();
+}
+
+function renderTracker() {
+  const area = document.getElementById('active-task-area');
+  if (!activeTask) { area.innerHTML = ''; return; }
+  area.innerHTML = `
+    <div class="active-task-box">
+      <div class="task-name">📋 ${activeTask.name}</div>
+      <div class="task-elapsed" id="task-elapsed">Running...</div>
+      <div class="log-entry-row">
+        <input type="text" id="step-input" placeholder="Log what you're doing..."
+          onkeydown="if(event.key==='Enter') logStep()">
+        <select class="cat-select" id="step-cat">
+          <option value="personal">🙋</option>
+          <option value="email">📧</option>
+          <option value="project">📁</option>
+          <option value="family">👨‍👩‍👦</option>
+          <option value="misc">📌</option>
+        </select>
+        <button class="log-btn" onclick="logStep()">LOG</button>
+      </div>
+      <button class="end-task-btn" onclick="endTask()">⏹ END TASK</button>
+    </div>
+  `;
+  updateElapsed();
+}
+
+function updateElapsed() {
+  const el = document.getElementById('task-elapsed');
+  if (el && taskStartTime) el.textContent = '⏱ ' + formatElapsed(Date.now() - taskStartTime);
+}
+
+function renderLogList() {
+  const area = document.getElementById('log-list-area');
+  if (!taskLog.length) {
+    area.innerHTML = '<div class="tracker-empty"><div class="empty-icon">⏱</div><p>Start a task above to begin logging.</p></div>';
+    return;
+  }
+  area.innerHTML = `<div class="log-list">${[...taskLog].reverse().map(e => `
+    <div class="log-item">
+      <span class="log-timestamp">${e.time}</span>
+      <span class="log-text">${e.text}</span>
+      <span class="cat-badge cat-${e.cat}">${e.cat}</span>
+    </div>
+  `).join('')}</div>`;
+}
+
+// ─── BRAINSTORM ───────────────────────────────────────────────────────────────
+function addQuickNote() {
+  const input = document.getElementById('quick-note-input');
+  const text = input.value.trim();
+  if (!text) return;
+  brainNotes.unshift({ text, time: now() });
+  localStorage.setItem('bf_brain_notes', JSON.stringify(brainNotes));
+  input.value = '';
+  renderBrainNotes();
+}
+
+function deleteBrainNote(idx) {
+  brainNotes.splice(idx, 1);
+  localStorage.setItem('bf_brain_notes', JSON.stringify(brainNotes));
+  renderBrainNotes();
+}
+
+function renderBrainNotes() {
+  const list = document.getElementById('brain-notes-list');
+  if (!list) return;
+  list.innerHTML = brainNotes.map((n, i) => `
+    <div class="brain-note-item">
+      <span class="note-text">${n.text}</span>
+      <span class="note-time">${n.time}</span>
+      <button class="delete-note" onclick="deleteBrainNote(${i})">🗑</button>
+    </div>
+  `).join('');
+}
+
+async function generateFormula() {
+  const thought = document.getElementById('formula-thought').value.trim();
+  const noun = document.getElementById('formula-noun').value.trim();
+  const verb = document.getElementById('formula-verb').value.trim();
+  const apiKey = localStorage.getItem('bf_api_key');
+
+  if (!thought && !noun && !verb) { alert('Add a thought, noun, or verb to generate.'); return; }
+  if (!apiKey) { alert('Add your Anthropic API key in Settings ⚙️ first.'); return; }
+
+  const btn = document.getElementById('gen-btn');
+  btn.disabled = true; btn.textContent = '⏳ Generating...';
+
+  const prompt = `You are a productivity coach. The user has a random brain dump thought and wants it structured.
+
+Thought: "${thought || '(none)'}"
+Key noun: "${noun || '(none)'}"
+Key verb: "${verb || '(none)'}"
+
+Create a structured, actionable output in exactly this format (3 lines, no extra text):
+ACTION: [one clear action statement using the verb and noun]
+CONTEXT: [why this matters or when to do it — one phrase]
+NEXT STEP: [the single most immediate next action, very specific]`;
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+    const data = await res.json();
+    const text = data.content?.map(b => b.text || '').join('') || 'Could not generate.';
+    document.getElementById('formula-output').innerHTML = text.replace(/\n/g, '<br>');
+    document.getElementById('formula-result').classList.add('visible');
+  } catch (e) {
+    alert('API error. Check your key in Settings.');
+  } finally {
+    btn.disabled = false; btn.textContent = '✨ GENERATE STRUCTURE';
+  }
+}
+
+// ─── SETTINGS ────────────────────────────────────────────────────────────────
+function saveSettings() {
+  const key = document.getElementById('api-key-input').value.trim();
+  if (key) localStorage.setItem('bf_api_key', key);
+  else localStorage.removeItem('bf_api_key');
+  closeModal('settings-modal');
+  alert('✅ Settings saved!');
+}
+function openSettings() { openModal('settings-modal'); }
+
+// ─── MODAL ────────────────────────────────────────────────────────────────────
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.modal-overlay').forEach(m => {
+  m.addEventListener('click', e => { if (e.target === m) m.classList.remove('open'); });
+});
+
+// ─── UTILS ────────────────────────────────────────────────────────────────────
+function now() {
+  const d = new Date();
+  const h = d.getHours() % 12 || 12;
+  const m = String(d.getMinutes()).padStart(2, '0');
+  const s = String(d.getSeconds()).padStart(2, '0');
+  const ampm = d.getHours() >= 12 ? 'PM' : 'AM';
+  return `${h}:${m}:${s} ${ampm}`;
+}
+
+function formatElapsed(ms) {
+  const s = Math.floor(ms / 1000);
+  const m = Math.floor(s / 60);
+  const h = Math.floor(m / 60);
+  if (h > 0) return `${h}h ${m % 60}m`;
+  if (m > 0) return `${m}m ${s % 60}s`;
+  return `${s}s`;
+}
+</script>
+</body>
+</html>
