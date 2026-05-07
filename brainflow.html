@@ -457,6 +457,91 @@ header .tagline {
   width: 100%;
 }
 
+/* ─── SUB TABS ─── */
+.sub-tab-bar {
+  display: flex; gap: 6px; margin-bottom: 14px; flex-wrap: wrap;
+}
+.sub-tab {
+  background: white; border: var(--border); border-radius: 20px;
+  padding: 6px 14px; font-family: 'Bangers', cursive;
+  font-size: 0.85rem; letter-spacing: 1px; cursor: pointer;
+  box-shadow: 2px 2px 0 var(--dark); transition: all 0.12s;
+}
+.sub-tab.active { background: var(--dark); color: var(--yellow); }
+.sub-panel { display: none; }
+.sub-panel.active { display: block; }
+
+/* ─── ARCHIVE ─── */
+.archive-search-row {
+  display: flex; gap: 8px; margin-bottom: 8px;
+}
+.archive-search-input {
+  flex: 1; border: var(--border); border-radius: 10px;
+  padding: 9px 12px; font-family: 'Nunito', sans-serif;
+  font-size: 0.85rem; font-weight: 700; outline: none;
+  background: white;
+}
+.archive-search-input:focus { border-color: var(--blue); }
+.archive-filter-row {
+  display: flex; gap: 6px; margin-bottom: 12px; flex-wrap: wrap;
+}
+.filter-chip {
+  background: white; border: 2px solid #ddd; border-radius: 20px;
+  padding: 4px 12px; font-size: 0.75rem; font-weight: 800;
+  cursor: pointer; transition: all 0.12s;
+}
+.filter-chip.active { background: var(--dark); color: white; border-color: var(--dark); }
+
+.archive-item {
+  background: white; border: var(--border); border-radius: 12px;
+  margin-bottom: 10px; box-shadow: 3px 3px 0 var(--dark); overflow: hidden;
+}
+.archive-item-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 14px; cursor: pointer; background: var(--dark); color: white;
+}
+.archive-item-title { font-family: 'Bangers', cursive; font-size: 1rem; letter-spacing: 1px; }
+.archive-item-meta { font-size: 0.7rem; color: #aaa; display: flex; gap: 8px; align-items: center; }
+.archive-item-body { padding: 10px 14px; display: none; }
+.archive-item-body.open { display: block; }
+.archive-log-row {
+  display: flex; gap: 8px; align-items: flex-start;
+  padding: 4px 0; border-bottom: 1px solid #f0f0f0; font-size: 0.82rem;
+}
+.archive-log-row:last-child { border-bottom: none; }
+.archive-empty { text-align: center; padding: 30px; color: #aaa; font-weight: 700; font-size: 0.9rem; }
+
+/* ─── DAY SUMMARY ─── */
+.summary-date-row {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 12px;
+}
+.summary-date-label {
+  font-family: 'Bangers', cursive; font-size: 1.1rem;
+  letter-spacing: 2px; color: var(--blue);
+}
+.stat-row {
+  display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px;
+}
+.stat-box {
+  flex: 1; min-width: 70px; background: var(--yellow);
+  border: var(--border); border-radius: 10px; padding: 10px 8px;
+  text-align: center; box-shadow: 3px 3px 0 var(--dark);
+}
+.stat-num { font-family: 'Bangers', cursive; font-size: 1.6rem; line-height: 1; }
+.stat-label { font-size: 0.65rem; font-weight: 800; letter-spacing: 1px;
+  text-transform: uppercase; color: #555; margin-top: 2px; }
+
+.past-summary-item {
+  background: white; border: var(--border); border-radius: 10px;
+  padding: 10px 14px; margin-bottom: 8px; box-shadow: 2px 2px 0 var(--dark);
+  cursor: pointer;
+}
+.past-summary-date { font-family: 'Bangers', cursive; font-size: 0.95rem;
+  letter-spacing: 1px; color: var(--blue); }
+.past-summary-preview { font-size: 0.8rem; color: #666; font-weight: 600;
+  margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
 /* ─── UTILITY ─── */
 .flex-row { display: flex; align-items: center; gap: 8px; }
 .spacer { flex: 1; }
@@ -506,15 +591,72 @@ header .tagline {
   <!-- ── TRACKER PANEL ── -->
   <div class="panel" id="panel-tracker">
     <div class="panel-title">⏱ Task Tracker</div>
-    <div class="tracker-start">
-      <input type="text" id="task-name-input" placeholder="What are you working on?" maxlength="60">
-      <button class="btn-primary" onclick="startTask()">START</button>
+
+    <!-- Sub-tabs -->
+    <div class="sub-tab-bar">
+      <button class="sub-tab active" onclick="switchSubTab('active', this)">▶ Active</button>
+      <button class="sub-tab" onclick="switchSubTab('archive', this)">🗄 Archive</button>
+      <button class="sub-tab" onclick="switchSubTab('summary', this)">📊 Day Summary</button>
     </div>
-    <div id="active-task-area"></div>
-    <div id="log-list-area">
-      <div class="tracker-empty">
-        <div class="empty-icon">⏱</div>
-        <p>Start a task above to begin logging your steps with timestamps.</p>
+
+    <!-- Active Task -->
+    <div class="sub-panel active" id="sub-active">
+      <div class="tracker-start">
+        <input type="text" id="task-name-input" placeholder="What are you working on?" maxlength="60">
+        <button class="btn-primary" onclick="startTask()">START</button>
+      </div>
+      <div id="active-task-area"></div>
+      <div id="log-list-area">
+        <div class="tracker-empty">
+          <div class="empty-icon">⏱</div>
+          <p>Start a task above to begin logging your steps with timestamps.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Archive -->
+    <div class="sub-panel" id="sub-archive">
+      <div class="archive-search-row">
+        <input type="text" class="archive-search-input" id="archive-search-text" placeholder="🔍 Search task name..." oninput="renderArchive()">
+        <input type="date" class="archive-search-input" id="archive-search-date" style="max-width:145px;" oninput="renderArchive()">
+      </div>
+      <div class="archive-filter-row">
+        <button class="filter-chip active" onclick="setArchiveCat('all', this)">All</button>
+        <button class="filter-chip" onclick="setArchiveCat('email', this)">📧 Email</button>
+        <button class="filter-chip" onclick="setArchiveCat('project', this)">📁 Project</button>
+        <button class="filter-chip" onclick="setArchiveCat('personal', this)">🙋 Personal</button>
+        <button class="filter-chip" onclick="setArchiveCat('family', this)">👨‍👩‍👦 Family</button>
+      </div>
+      <div id="archive-list"></div>
+    </div>
+
+    <!-- Day Summary -->
+    <div class="sub-panel" id="sub-summary">
+      <div class="summary-date-row">
+        <span class="summary-date-label" id="summary-date-label"></span>
+        <button class="btn-primary" style="padding:6px 12px;font-size:0.8rem;" onclick="generateDaySummary()">✨ AI Summary</button>
+      </div>
+      <div class="brainstorm-section" style="margin-bottom:12px;">
+        <div class="section-label">📝 End of Day Notes</div>
+        <textarea class="brainstorm-textarea" id="day-notes" placeholder="How did today go? What worked, what didn't, what's on your mind..." rows="4" oninput="saveDayNotes()"></textarea>
+      </div>
+      <div class="brainstorm-section" style="margin-bottom:12px;">
+        <div class="section-label">📈 Today's Stats</div>
+        <div id="day-stats"></div>
+      </div>
+      <div class="brainstorm-section">
+        <div class="section-label">🎯 AI Strategy</div>
+        <div id="ai-summary-output" class="formula-result" style="display:none;">
+          <div class="result-label">📋 Daily Debrief</div>
+          <div id="ai-summary-text"></div>
+        </div>
+        <div id="ai-summary-placeholder" style="color:#aaa;font-size:0.85rem;font-weight:600;">
+          Tap "✨ AI Summary" above to get a strategic analysis of your day.
+        </div>
+      </div>
+      <div class="brainstorm-section" style="margin-top:12px;">
+        <div class="section-label">📅 Past Summaries</div>
+        <div id="past-summaries-list"></div>
       </div>
     </div>
   </div>
@@ -761,7 +903,9 @@ let activeRoutine = null;
 let checklistState = {};
 let checklistNotes = [];
 let taskLog = [];
-let taskLogs = []; // persisted completed task logs
+let taskLogs = [];
+let daySummaries = JSON.parse(localStorage.getItem('bf_day_summaries') || '[]');
+let archiveCatFilter = 'all';
 let activeTask = null;
 let taskStartTime = null;
 let timerInterval = null;
@@ -770,12 +914,17 @@ let brainNotes = JSON.parse(localStorage.getItem('bf_brain_notes') || '[]');
 // ─── INIT ─────────────────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', async () => {
   buildRoutineGrid();
+  updateSummaryDate();
   const saved = localStorage.getItem('bf_api_key');
   if (saved) document.getElementById('api-key-input').value = saved;
-  // Load from cloud first, fallback to local
   const loaded = await cloudLoad();
-  if (!loaded) brainNotes = JSON.parse(localStorage.getItem('bf_brain_notes') || '[]');
+  if (!loaded) {
+    brainNotes = JSON.parse(localStorage.getItem('bf_brain_notes') || '[]');
+    daySummaries = JSON.parse(localStorage.getItem('bf_day_summaries') || '[]');
+  }
   renderBrainNotes();
+  renderDayStats();
+  renderPastSummaries();
 });
 
 // ─── TABS ─────────────────────────────────────────────────────────────────────
@@ -786,7 +935,17 @@ function switchTab(name, btn) {
   btn.classList.add('active');
 }
 
-// ─── ROUTINES ─────────────────────────────────────────────────────────────────
+// ─── SUB TABS ─────────────────────────────────────────────────────────────────
+function switchSubTab(name, btn) {
+  document.querySelectorAll('.sub-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.sub-tab').forEach(b => b.classList.remove('active'));
+  document.getElementById('sub-' + name).classList.add('active');
+  btn.classList.add('active');
+  if (name === 'archive') renderArchive();
+  if (name === 'summary') { renderDayStats(); renderPastSummaries(); }
+}
+
+
 function buildRoutineGrid() {
   const grid = document.getElementById('routines-grid');
   grid.innerHTML = ROUTINES.map(r => `
@@ -957,7 +1116,7 @@ function startTask() {
   const name = input.value.trim();
   if (!name) { input.focus(); return; }
   if (activeTask) { if (!confirm('End current task and start a new one?')) return; endTask(); }
-  activeTask = { name, startTime: Date.now() };
+  activeTask = { name, startTime: Date.now(), startTimeStr: now() };
   taskLog = [];
   taskStartTime = Date.now();
   input.value = '';
@@ -986,7 +1145,7 @@ function endTask() {
   if (!activeTask) return;
   const elapsed = formatElapsed(Date.now() - taskStartTime);
   addLogEntry(`Ended after ${elapsed}`, 'misc', true);
-  taskLogs.push({ task: activeTask.name, log: [...taskLog], date: new Date().toLocaleDateString() });
+  taskLogs.push({ task: activeTask.name, log: [...taskLog], date: new Date().toLocaleDateString(), startTime: activeTask.startTimeStr });
   clearInterval(timerInterval);
   activeTask = null;
   scheduleSave();
@@ -1128,7 +1287,8 @@ function getCloudData() {
   return {
     brainNotes,
     checklistState,
-    taskLogs: taskLogs.slice(-50), // keep last 50 completed logs
+    taskLogs: taskLogs.slice(-100),
+    daySummaries: daySummaries.slice(-30),
     lastSaved: new Date().toISOString()
   };
 }
@@ -1179,6 +1339,7 @@ async function cloudLoad() {
     if (parsed.brainNotes) brainNotes = parsed.brainNotes;
     if (parsed.checklistState) checklistState = parsed.checklistState;
     if (parsed.taskLogs) taskLogs = parsed.taskLogs;
+    if (parsed.daySummaries) daySummaries = parsed.daySummaries;
     setSyncStatus('saved');
     return true;
   } catch (e) { setSyncStatus('error'); return false; }
@@ -1195,7 +1356,180 @@ function saveAndSync() {
   scheduleSave();
 }
 
-function quickFormula() {
+// ─── ARCHIVE ─────────────────────────────────────────────────────────────────
+function setArchiveCat(cat, btn) {
+  archiveCatFilter = cat;
+  document.querySelectorAll('.filter-chip').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderArchive();
+}
+
+function renderArchive() {
+  const list = document.getElementById('archive-list');
+  if (!list) return;
+  const searchText = (document.getElementById('archive-search-text')?.value || '').toLowerCase();
+  const searchDate = document.getElementById('archive-search-date')?.value || '';
+
+  let filtered = [...taskLogs].reverse().filter(t => {
+    const matchText = !searchText || t.task.toLowerCase().includes(searchText);
+    const matchDate = !searchDate || t.date === new Date(searchDate + 'T12:00:00').toLocaleDateString();
+    const matchCat = archiveCatFilter === 'all' || t.log.some(l => l.cat === archiveCatFilter);
+    return matchText && matchDate && matchCat;
+  });
+
+  if (!filtered.length) {
+    list.innerHTML = '<div class="archive-empty">No tasks found. Complete tasks to see them here.</div>';
+    return;
+  }
+
+  list.innerHTML = filtered.map((t, i) => {
+    const cats = [...new Set(t.log.map(l => l.cat))];
+    return `
+    <div class="archive-item">
+      <div class="archive-item-header" onclick="toggleArchiveItem(${i})">
+        <div>
+          <div class="archive-item-title">📋 ${t.task}</div>
+          <div class="archive-item-meta">
+            <span>📅 ${t.date}</span>
+            <span>🕐 ${t.startTime || ''}</span>
+            <span>${t.log.length} steps</span>
+          </div>
+        </div>
+        <span style="color:#aaa;font-size:1.2rem;" id="archive-chevron-${i}">▼</span>
+      </div>
+      <div class="archive-item-body" id="archive-body-${i}">
+        ${t.log.map(l => `
+          <div class="archive-log-row">
+            <span class="log-timestamp" style="font-size:0.75rem;">${l.time}</span>
+            <span style="flex:1;font-size:0.82rem;font-weight:700;">${l.text}</span>
+            <span class="cat-badge cat-${l.cat}" style="font-size:0.6rem;">${l.cat}</span>
+          </div>
+        `).join('')}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function toggleArchiveItem(i) {
+  const body = document.getElementById(`archive-body-${i}`);
+  const chevron = document.getElementById(`archive-chevron-${i}`);
+  body.classList.toggle('open');
+  chevron.textContent = body.classList.contains('open') ? '▲' : '▼';
+}
+
+// ─── DAY SUMMARY ─────────────────────────────────────────────────────────────
+function updateSummaryDate() {
+  const el = document.getElementById('summary-date-label');
+  if (el) el.textContent = '📅 ' + new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+}
+
+function renderDayStats() {
+  const el = document.getElementById('day-stats');
+  if (!el) return;
+  const today = new Date().toLocaleDateString();
+  const todayTasks = taskLogs.filter(t => t.date === today);
+  const totalSteps = todayTasks.reduce((a, t) => a + t.log.filter(l => !l.auto).length, 0);
+  const cats = {};
+  todayTasks.forEach(t => t.log.forEach(l => { if (!l.auto) cats[l.cat] = (cats[l.cat] || 0) + 1; }));
+  const topCat = Object.entries(cats).sort((a,b) => b[1]-a[1])[0];
+  el.innerHTML = `<div class="stat-row">
+    <div class="stat-box"><div class="stat-num">${todayTasks.length}</div><div class="stat-label">Tasks Done</div></div>
+    <div class="stat-box" style="background:var(--green);"><div class="stat-num">${totalSteps}</div><div class="stat-label">Steps Logged</div></div>
+    <div class="stat-box" style="background:var(--blue);color:white;"><div class="stat-num">${topCat ? topCat[1] : 0}</div><div class="stat-label">${topCat ? topCat[0] : 'No'} Focus</div></div>
+  </div>`;
+}
+
+function saveDayNotes() {
+  const notes = document.getElementById('day-notes')?.value || '';
+  const today = new Date().toLocaleDateString();
+  let existing = daySummaries.find(s => s.date === today);
+  if (existing) existing.notes = notes;
+  else daySummaries.unshift({ date: today, notes, aiSummary: '' });
+  localStorage.setItem('bf_day_summaries', JSON.stringify(daySummaries));
+  scheduleSave();
+}
+
+function renderPastSummaries() {
+  const el = document.getElementById('past-summaries-list');
+  if (!el) return;
+  const today = new Date().toLocaleDateString();
+  const past = daySummaries.filter(s => s.date !== today).slice(0, 10);
+  if (!past.length) { el.innerHTML = '<p style="color:#aaa;font-size:0.85rem;font-weight:600;">Past summaries will appear here.</p>'; return; }
+  el.innerHTML = past.map(s => `
+    <div class="past-summary-item" onclick="loadPastSummary('${s.date}')">
+      <div class="past-summary-date">${s.date}</div>
+      <div class="past-summary-preview">${s.aiSummary || s.notes || 'No notes'}</div>
+    </div>
+  `).join('');
+}
+
+function loadPastSummary(date) {
+  const s = daySummaries.find(x => x.date === date);
+  if (!s) return;
+  const el = document.getElementById('summary-date-label');
+  if (el) el.textContent = '📅 ' + date;
+  const notes = document.getElementById('day-notes');
+  if (notes) notes.value = s.notes || '';
+  if (s.aiSummary) {
+    document.getElementById('ai-summary-text').innerHTML = s.aiSummary;
+    document.getElementById('ai-summary-output').style.display = 'block';
+    document.getElementById('ai-summary-placeholder').style.display = 'none';
+  }
+}
+
+async function generateDaySummary() {
+  const apiKey = localStorage.getItem('bf_api_key');
+  if (!apiKey) { alert('Add your Anthropic API key in Settings ⚙️ first.'); return; }
+  const today = new Date().toLocaleDateString();
+  const notes = document.getElementById('day-notes')?.value || '';
+  const todayTasks = taskLogs.filter(t => t.date === today);
+  if (!todayTasks.length && !notes) { alert('Complete some tasks or add notes first.'); return; }
+
+  const taskSummary = todayTasks.map(t =>
+    `Task: ${t.task}\nSteps: ${t.log.filter(l=>!l.auto).map(l=>`${l.time} — ${l.text} [${l.cat}]`).join(', ')}`
+  ).join('\n\n');
+
+  const prompt = `You are a productivity coach reviewing someone's day. Analyze the following and provide a concise strategic debrief.
+
+TASKS COMPLETED TODAY:
+${taskSummary || 'None logged'}
+
+PERSONAL NOTES:
+${notes || 'None'}
+
+Respond in exactly this format (keep it concise, 1-2 sentences per section):
+WINS: [what went well today]
+PATTERNS: [any trends or habits you notice]
+BOTTLENECKS: [what slowed progress or got skipped]
+TOMORROW: [top 2 strategic priorities for tomorrow]`;
+
+  const btn = document.querySelector('[onclick="generateDaySummary()"]');
+  if (btn) { btn.disabled = true; btn.textContent = '⏳ Analyzing...'; }
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514', max_tokens: 1000,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+    const data = await res.json();
+    const text = data.content?.map(b => b.text || '').join('') || 'Could not generate.';
+    document.getElementById('ai-summary-text').innerHTML = text.replace(/\n/g, '<br>');
+    document.getElementById('ai-summary-output').style.display = 'block';
+    document.getElementById('ai-summary-placeholder').style.display = 'none';
+    // Save to day summaries
+    let existing = daySummaries.find(s => s.date === today);
+    if (existing) existing.aiSummary = text;
+    else daySummaries.unshift({ date: today, notes, aiSummary: text });
+    localStorage.setItem('bf_day_summaries', JSON.stringify(daySummaries));
+    scheduleSave();
+  } catch(e) { alert('API error. Check your key in Settings.'); }
+  finally { if (btn) { btn.disabled = false; btn.textContent = '✨ AI Summary'; } }
+}
+
+
   const thought = document.getElementById('formula-thought').value.trim();
   const noun = document.getElementById('formula-noun').value.trim();
   const verb = document.getElementById('formula-verb').value.trim();
