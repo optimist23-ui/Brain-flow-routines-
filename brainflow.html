@@ -998,26 +998,47 @@ function cloudSave() {
     .catch(function(){setSyncStatus('error');});
 }
 
+function findGistId(token) {
+  return fetch('https://api.github.com/gists?per_page=50', {headers:{Authorization:'token '+token}})
+    .then(function(res){ return res.json(); })
+    .then(function(gists){
+      if (!Array.isArray(gists)) return null;
+      for (var i = 0; i < gists.length; i++) {
+        if (gists[i].description === 'BrainFlow App Data' && gists[i].files && gists[i].files[GIST_FILENAME]) {
+          localStorage.setItem('bf_gist_id', gists[i].id);
+          return gists[i].id;
+        }
+      }
+      return null;
+    }).catch(function(){ return null; });
+}
+
 function cloudLoad() {
   var token = localStorage.getItem('bf_gh_token');
-  var gistId = localStorage.getItem('bf_gist_id');
-  if (!token || !gistId) return Promise.resolve(false);
+  if (!token) return Promise.resolve(false);
   setSyncStatus('syncing');
-  return fetch('https://api.github.com/gists/' + gistId, {headers:{Authorization:'token '+token}})
-    .then(function(res){
-      if (!res.ok) { setSyncStatus('error'); return false; }
-      return res.json().then(function(data){
-        var raw = data.files && data.files[GIST_FILENAME] ? data.files[GIST_FILENAME].content : null;
-        if (!raw) { setSyncStatus('idle'); return false; }
-        var parsed = JSON.parse(raw);
-        if (parsed.brainNotes) brainNotes = parsed.brainNotes;
-        if (parsed.checklistState) checklistState = parsed.checklistState;
-        if (parsed.taskLogs) taskLogs = parsed.taskLogs;
-        if (parsed.daySummaries) daySummaries = parsed.daySummaries;
-        setSyncStatus('saved');
-        return true;
-      });
-    }).catch(function(){setSyncStatus('error');return false;});
+  var gistId = localStorage.getItem('bf_gist_id');
+  var doLoad = function(id) {
+    if (!id) { setSyncStatus('idle'); return false; }
+    return fetch('https://api.github.com/gists/' + id, {headers:{Authorization:'token '+token}})
+      .then(function(res){
+        if (!res.ok) { setSyncStatus('error'); return false; }
+        return res.json().then(function(data){
+          var raw = data.files && data.files[GIST_FILENAME] ? data.files[GIST_FILENAME].content : null;
+          if (!raw) { setSyncStatus('idle'); return false; }
+          var parsed = JSON.parse(raw);
+          if (parsed.brainNotes) brainNotes = parsed.brainNotes;
+          if (parsed.checklistState) checklistState = parsed.checklistState;
+          if (parsed.taskLogs) taskLogs = parsed.taskLogs;
+          if (parsed.daySummaries) daySummaries = parsed.daySummaries;
+          setSyncStatus('saved');
+          return true;
+        });
+      }).catch(function(){ setSyncStatus('error'); return false; });
+  };
+  if (gistId) return doLoad(gistId);
+  // No local gistId — search GitHub for existing BrainFlow Gist
+  return findGistId(token).then(function(id){ return doLoad(id); });
 }
 
 function scheduleSave() { clearTimeout(syncTimeout); syncTimeout = setTimeout(cloudSave, 1500); }
@@ -1028,9 +1049,24 @@ function saveSettings() {
   var key = document.getElementById('api-key-input').value.trim();
   var ghToken = document.getElementById('gh-token-input').value.trim();
   if (key) localStorage.setItem('bf_api_key', key); else localStorage.removeItem('bf_api_key');
-  if (ghToken) { localStorage.setItem('bf_gh_token', ghToken); cloudSave(); } else localStorage.removeItem('bf_gh_token');
-  closeModal('settings-modal');
-  alert(ghToken ? 'Settings saved! Cloud sync active.' : 'Settings saved!');
+  if (ghToken) {
+    localStorage.setItem('bf_gh_token', ghToken);
+    localStorage.removeItem('bf_gist_id'); // clear old ID so we do a fresh lookup
+    closeModal('settings-modal');
+    setSyncStatus('syncing');
+    cloudLoad().then(function(loaded){
+      if (loaded) {
+        renderBrainNotes(); renderDayStats(); renderPastSummaries(); buildRoutineGrid();
+        alert('Settings saved! Your data has been loaded from the cloud.');
+      } else {
+        cloudSave().then(function(){ alert('Settings saved! Cloud sync is active — your data will be saved going forward.'); });
+      }
+    });
+  } else {
+    localStorage.removeItem('bf_gh_token');
+    closeModal('settings-modal');
+    alert('Settings saved!');
+  }
 }
 
 function openSettings() {
