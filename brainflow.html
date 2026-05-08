@@ -982,7 +982,7 @@ function getCloudData() {
   return {brainNotes:brainNotes, checklistState:checklistState, taskLogs:taskLogs.slice(-100), daySummaries:daySummaries.slice(-30), lastSaved:new Date().toISOString()};
 }
 
-function cloudSave() {
+const SUPABASE_URL = 'https://ybnekyogwzfsbwlpsjur.supabase.co'; const SUPABASE_ANON_KEY = 'sb_publishable_-Et2VQeyxdURAwYpu1gX5A_dUvvYJmG'; {
   var token = localStorage.getItem('bf_gh_token');
   if (!token) return Promise.resolve();
   setSyncStatus('syncing');
