@@ -316,7 +316,7 @@ header .tagline{font-size:0.65rem;color:#aaa;letter-spacing:2px;text-transform:u
     <div class="modal-header"><span class="modal-title">Settings</span><button class="modal-close" onclick="closeModal('settings-modal')">X</button></div>
     <div class="modal-body">
       <div class="settings-content">
-        <div class="settings-group"><label>GitHub Token (Cloud Sync)</label><input type="password" class="settings-input" id="gh-token-input" placeholder="ghp_..."><div class="settings-note">Saves all data to a private GitHub Gist so nothing is lost between sessions.</div></div>
+        <div class="settings-group"><label>Supabase Cloud Sync</label><input type="text" class="settings-input" value="Connected to Supabase" disabled><div class="settings-note">Your routines, notes, task logs, and day summaries now save to Supabase across devices.</div></div>
         <div class="settings-group"><label>Anthropic API Key</label><input type="password" class="settings-input" id="api-key-input" placeholder="sk-ant-..."><div class="settings-note">Required for AI Generate and AI Summary features.</div></div>
         <button class="save-settings-btn" onclick="saveSettings()">Save Settings</button>
       </div>
@@ -347,31 +347,28 @@ var taskStartTime = null;
 var timerInterval = null;
 var brainNotes = [];
 var syncTimeout = null;
-var GIST_FILENAME = 'brainflow-data.json';
+
+const SUPABASE_URL = 'https://ybnekyogwzfsbwlpsjur.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_-Et2VQeyxdURAwYpu1gX5A_dUvvYJmG';
+const USER_ID = 'brainflow-main';
 
 document.addEventListener('DOMContentLoaded', function() {
   buildRoutineGrid();
   updateSummaryDate();
   var savedKey = localStorage.getItem('bf_api_key');
   if (savedKey) document.getElementById('api-key-input').value = savedKey;
-  var savedToken = localStorage.getItem('bf_gh_token');
-  if (savedToken) {
-    cloudLoad().then(function(loaded) {
-      if (!loaded) {
-        brainNotes = JSON.parse(localStorage.getItem('bf_brain_notes') || '[]');
-        daySummaries = JSON.parse(localStorage.getItem('bf_day_summaries') || '[]');
-      }
-      renderBrainNotes();
-      renderDayStats();
-      renderPastSummaries();
-    });
-  } else {
-    brainNotes = JSON.parse(localStorage.getItem('bf_brain_notes') || '[]');
-    daySummaries = JSON.parse(localStorage.getItem('bf_day_summaries') || '[]');
+
+  // Load local data first so the app works even if cloud is temporarily unavailable.
+  brainNotes = JSON.parse(localStorage.getItem('bf_brain_notes') || '[]');
+  daySummaries = JSON.parse(localStorage.getItem('bf_day_summaries') || '[]');
+
+  cloudLoad().then(function(loaded) {
     renderBrainNotes();
     renderDayStats();
     renderPastSummaries();
-  }
+    buildRoutineGrid();
+    if (!loaded) setSyncStatus('idle');
+  });
 });
 
 function buildRoutineGrid() {
@@ -979,66 +976,77 @@ function setSyncStatus(state) {
 }
 
 function getCloudData() {
-  return {brainNotes:brainNotes, checklistState:checklistState, taskLogs:taskLogs.slice(-100), daySummaries:daySummaries.slice(-30), lastSaved:new Date().toISOString()};
+  return {
+    brainNotes: brainNotes,
+    checklistState: checklistState,
+    taskLogs: taskLogs.slice(-250),
+    daySummaries: daySummaries.slice(-90),
+    routines: ROUTINES,
+    lastSaved: new Date().toISOString()
+  };
 }
 
-const SUPABASE_URL = 'https://ybnekyogwzfsbwlpsjur.supabase.co'; const SUPABASE_ANON_KEY = 'sb_publishable_-Et2VQeyxdURAwYpu1gX5A_dUvvYJmG'; {
-  var token = localStorage.getItem('bf_gh_token');
-  if (!token) return Promise.resolve();
+function applyCloudData(saved) {
+  if (!saved) return;
+  if (saved.brainNotes) brainNotes = saved.brainNotes;
+  if (saved.checklistState) checklistState = saved.checklistState;
+  if (saved.taskLogs) taskLogs = saved.taskLogs;
+  if (saved.daySummaries) daySummaries = saved.daySummaries;
+  if (saved.routines) ROUTINES = saved.routines;
+}
+
+function cloudSave() {
   setSyncStatus('syncing');
-  var gistId = localStorage.getItem('bf_gist_id');
-  var content = JSON.stringify(getCloudData(), null, 2);
-  var body = JSON.stringify({description:'BrainFlow App Data', public:false, files:{}});
-  var bodyObj = {description:'BrainFlow App Data', public:false, files:{}};
-  bodyObj.files[GIST_FILENAME] = {content:content};
-  var url = gistId ? 'https://api.github.com/gists/' + gistId : 'https://api.github.com/gists';
-  var method = gistId ? 'PATCH' : 'POST';
-  return fetch(url, {method:method, headers:{Authorization:'token '+token,'Content-Type':'application/json'}, body:JSON.stringify(bodyObj)})
-    .then(function(res){return res.json().then(function(data){if(data.id)localStorage.setItem('bf_gist_id',data.id);setSyncStatus(res.ok?'saved':'error');});})
-    .catch(function(){setSyncStatus('error');});
-}
+  localStorage.setItem('bf_brain_notes', JSON.stringify(brainNotes));
+  localStorage.setItem('bf_day_summaries', JSON.stringify(daySummaries));
 
-function findGistId(token) {
-  return fetch('https://api.github.com/gists?per_page=50', {headers:{Authorization:'token '+token}})
-    .then(function(res){ return res.json(); })
-    .then(function(gists){
-      if (!Array.isArray(gists)) return null;
-      for (var i = 0; i < gists.length; i++) {
-        if (gists[i].description === 'BrainFlow App Data' && gists[i].files && gists[i].files[GIST_FILENAME]) {
-          localStorage.setItem('bf_gist_id', gists[i].id);
-          return gists[i].id;
-        }
-      }
-      return null;
-    }).catch(function(){ return null; });
+  return fetch(SUPABASE_URL + '/rest/v1/brainflow_data', {
+    method: 'POST',
+    headers: {
+      apikey: SUPABASE_ANON_KEY,
+      Authorization: 'Bearer ' + SUPABASE_ANON_KEY,
+      'Content-Type': 'application/json',
+      Prefer: 'resolution=merge-duplicates,return=minimal'
+    },
+    body: JSON.stringify({
+      id: USER_ID,
+      data: getCloudData(),
+      updated_at: new Date().toISOString()
+    })
+  }).then(function(res) {
+    if (!res.ok) throw new Error('Supabase save failed: ' + res.status);
+    setSyncStatus('saved');
+    return true;
+  }).catch(function(err) {
+    console.error(err);
+    setSyncStatus('error');
+    return false;
+  });
 }
 
 function cloudLoad() {
-  var token = localStorage.getItem('bf_gh_token');
-  if (!token) return Promise.resolve(false);
   setSyncStatus('syncing');
-  var gistId = localStorage.getItem('bf_gist_id');
-  var doLoad = function(id) {
-    if (!id) { setSyncStatus('idle'); return false; }
-    return fetch('https://api.github.com/gists/' + id, {headers:{Authorization:'token '+token}})
-      .then(function(res){
-        if (!res.ok) { setSyncStatus('error'); return false; }
-        return res.json().then(function(data){
-          var raw = data.files && data.files[GIST_FILENAME] ? data.files[GIST_FILENAME].content : null;
-          if (!raw) { setSyncStatus('idle'); return false; }
-          var parsed = JSON.parse(raw);
-          if (parsed.brainNotes) brainNotes = parsed.brainNotes;
-          if (parsed.checklistState) checklistState = parsed.checklistState;
-          if (parsed.taskLogs) taskLogs = parsed.taskLogs;
-          if (parsed.daySummaries) daySummaries = parsed.daySummaries;
-          setSyncStatus('saved');
-          return true;
-        });
-      }).catch(function(){ setSyncStatus('error'); return false; });
-  };
-  if (gistId) return doLoad(gistId);
-  // No local gistId — search GitHub for existing BrainFlow Gist
-  return findGistId(token).then(function(id){ return doLoad(id); });
+  return fetch(SUPABASE_URL + '/rest/v1/brainflow_data?id=eq.' + encodeURIComponent(USER_ID) + '&select=data', {
+    headers: {
+      apikey: SUPABASE_ANON_KEY,
+      Authorization: 'Bearer ' + SUPABASE_ANON_KEY
+    }
+  }).then(function(res) {
+    if (!res.ok) throw new Error('Supabase load failed: ' + res.status);
+    return res.json();
+  }).then(function(rows) {
+    if (!rows || !rows.length) {
+      setSyncStatus('idle');
+      return false;
+    }
+    applyCloudData(rows[0].data);
+    setSyncStatus('saved');
+    return true;
+  }).catch(function(err) {
+    console.error(err);
+    setSyncStatus('error');
+    return false;
+  });
 }
 
 function scheduleSave() { clearTimeout(syncTimeout); syncTimeout = setTimeout(cloudSave, 1500); }
@@ -1047,31 +1055,14 @@ function saveAndSync() { localStorage.setItem('bf_brain_notes', JSON.stringify(b
 
 function saveSettings() {
   var key = document.getElementById('api-key-input').value.trim();
-  var ghToken = document.getElementById('gh-token-input').value.trim();
   if (key) localStorage.setItem('bf_api_key', key); else localStorage.removeItem('bf_api_key');
-  if (ghToken) {
-    localStorage.setItem('bf_gh_token', ghToken);
-    localStorage.removeItem('bf_gist_id'); // clear old ID so we do a fresh lookup
-    closeModal('settings-modal');
-    setSyncStatus('syncing');
-    cloudLoad().then(function(loaded){
-      if (loaded) {
-        renderBrainNotes(); renderDayStats(); renderPastSummaries(); buildRoutineGrid();
-        alert('Settings saved! Your data has been loaded from the cloud.');
-      } else {
-        cloudSave().then(function(){ alert('Settings saved! Cloud sync is active — your data will be saved going forward.'); });
-      }
-    });
-  } else {
-    localStorage.removeItem('bf_gh_token');
-    closeModal('settings-modal');
-    alert('Settings saved!');
-  }
+  closeModal('settings-modal');
+  cloudSave().then(function(saved){
+    alert(saved ? 'Settings saved! Supabase cloud sync is active.' : 'Settings saved locally, but Supabase sync failed. Check your table and RLS policy.');
+  });
 }
 
 function openSettings() {
-  var t = localStorage.getItem('bf_gh_token');
-  if (t) document.getElementById('gh-token-input').value = t;
   openModal('settings-modal');
 }
 
